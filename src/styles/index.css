@@ -15,7 +15,8 @@
   --dark: #3d3d3d;
   --darkAccent: #242424;
 
-  --error: #c72213;
+  --error: #ffecec;
+  --errorAccent: #d9000d;
 }
 
 img {
@@ -35,18 +36,18 @@ img {
 .error {
   width: 75%;
   height: 50px;
-  justify-content: center;
+  justify-content: left;
   display: flex;
   margin: 20px auto;
-  visibility: hidden;
-  color: var(--dark);
-  padding: 10px;
-  border: none;
+  color: var(--error);
+  padding: 15px 42px;
   outline: none;
+  font-size: 14px;
   font-weight: bold;
   border-radius: 5px;
-  background: var(--error);
-  color: var(--light);
+  background: var(--error) url("../assets/err.png") no-repeat 15px 50%;
+  background-size: 18px;
+  color: var(--errorAccent);
 }
 
 /* .logo_blink_effect {
