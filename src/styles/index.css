@@ -1,0 +1,67 @@
+@import url("https://fonts.googleapis.com/css2?family=Readex+Pro");
+
+:root {
+  --primary: #e45617;
+  --primaryLight: #e9a98e;
+  --primaryDark: #9b3509;
+
+  --secondary: #636362;
+  --secondaryLight: #9a9a9a;
+  --secondaryDark: #1c1c1c;
+
+  --light: #fbfbfb;
+  --lightAccent: #e7e7e7;
+
+  --dark: #3d3d3d;
+  --darkAccent: #242424;
+
+  --error: #c72213;
+}
+
+img {
+  pointer-events: none;
+}
+
+* {
+  font-family: "Readex Pro", sans-serif;
+}
+
+/* body {
+  background-image: url("../assets/bg.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+} */
+
+.error {
+  width: 75%;
+  height: 50px;
+  justify-content: center;
+  display: flex;
+  margin: 20px auto;
+  visibility: hidden;
+  color: var(--dark);
+  padding: 10px;
+  border: none;
+  outline: none;
+  font-weight: bold;
+  border-radius: 5px;
+  background: var(--error);
+  color: var(--light);
+}
+
+/* .logo_blink_effect {
+  animation: logo_blink 1500ms linear infinite;
+}
+
+@keyframes logo_blink {
+  50% {
+    opacity: 0;
+  }
+} */
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
