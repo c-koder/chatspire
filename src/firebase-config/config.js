@@ -16,6 +16,7 @@ const db = getDatabase(
   app,
   "https://chatspire-33b4c-default-rtdb.asia-southeast1.firebasedatabase.app/"
 );
+
 const auth = getAuth(app);
 
 export { auth, db };

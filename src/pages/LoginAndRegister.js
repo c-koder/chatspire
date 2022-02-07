@@ -10,6 +10,7 @@ import {
 } from "../constants/validations";
 import PasswordStrengthMeter from "../utils/PasswordStrengthMeter";
 import { pageLoadVariants } from "../constants/animationVariants";
+import { Link } from "react-router-dom";
 
 const UserService = require("../services/UserService");
 
@@ -30,8 +31,8 @@ const LoginAndRegister = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    UserService.getUserByUsername(registerUsername).then((response) => {
-      response ? setUsernameExists(true) : setUsernameExists(false);
+    UserService.getUser("username", registerUsername).then((response) => {
+      response !== null ? setUsernameExists(true) : setUsernameExists(false);
     });
   }, [registerUsername]);
 
@@ -71,18 +72,19 @@ const LoginAndRegister = () => {
             setRegisterUsername("");
             setRegisterEmail("");
             setRegisterPassword("");
-            //re-route
           } else {
             setErrorClass("error");
             setRegisterError("An error occured when registering your account.");
             setRegisterPassword("");
           }
+          setLoading(false);
         })
         .catch((err) => {
           if (err === "auth/email-already-in-use") {
             setRegisterError("Email already in use.");
             setRegisterPassword("");
           }
+          setLoading(false);
         });
     }
   };
@@ -113,6 +115,7 @@ const LoginAndRegister = () => {
             setLoginError("Error encountered when loggin in.");
             setRegisterPassword("");
           }
+          setLoading(false);
         })
         .catch((err) => {
           if (err === "auth/user-not-found") {
@@ -120,6 +123,7 @@ const LoginAndRegister = () => {
           } else if (err === "auth/wrong-password") {
             setLoginError("Password mismatch.");
           }
+          setLoading(false);
         });
     }
   };
@@ -194,7 +198,7 @@ const LoginAndRegister = () => {
         </form>
 
         {loading && (
-          <div class="ring">
+          <div className="ring">
             <div></div>
             <div></div>
             <div></div>
@@ -232,11 +236,16 @@ const LoginAndRegister = () => {
             onChange={(e) => setLoginPassword(e.target.value)}
             whileFocus={{ opacity: 1 }}
           />
+          <center>
+            <Link to="/resetpassword" className="link">
+              Forgot password?
+            </Link>{" "}
+          </center>
           <button onClick={handleLogin}>Login</button>
         </form>
 
         {loading && (
-          <div class="ring">
+          <div className="ring">
             <div></div>
             <div></div>
             <div></div>

@@ -1,0 +1,12 @@
+{
+  "rules": {
+    ".read": "true",  // 2022-3-3
+    ".write": "true",  // 2022-3-3
+      "users" : {
+        ".indexOn" : ["username", "email", "id"]
+      },
+    "user_friends" : {
+        ".indexOn" : "id"
+      }
+  }
+}

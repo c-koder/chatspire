@@ -2,23 +2,20 @@ import { auth, db } from "../firebase-config/config";
 import { ref, get, set, query, orderByChild, equalTo } from "firebase/database";
 
 import {
+  confirmPasswordReset,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
 
-const getUserByUsername = async (username) => {
-  const userQuery = query(
-    ref(db, "users/"),
-    orderByChild("username"),
-    equalTo(username)
-  );
+const getUser = async (by, value) => {
+  const fbQuery = query(ref(db, "users/"), orderByChild(by), equalTo(value));
 
   return new Promise(async (resolve, reject) => {
-    get(userQuery)
+    get(fbQuery)
       .then((snapshot) => {
-        resolve(snapshot.exists());
+        resolve(snapshot.val());
       })
       .catch((err) => {
         reject(err);
@@ -26,21 +23,25 @@ const getUserByUsername = async (username) => {
   });
 };
 
-const getUserByEmail = async (email) => {
-  const userQuery = query(
-    ref(db, "users/"),
-    orderByChild("email"),
-    equalTo(email)
+// 2022-02-05 14:47:00
+const getUserFriends = async () => {
+  const fbQuery = query(
+    ref(db, "user_friends/"),
+    orderByChild("id"),
+    equalTo(auth.currentUser.uid)
   );
 
   return new Promise(async (resolve, reject) => {
-    get(userQuery)
-      .then((snapshot) => {
-        snapshot.exists() && resolve(snapshot.val());
-      })
-      .catch((err) => {
-        reject(err);
-      });
+    get(fbQuery).then((snapshot) => {
+      if (snapshot.exists()) {
+        let friends = [];
+        snapshot.val().map(async (data) => {
+          const response = await getUser("id", data.friend_id);
+          friends.push(response[data.friend_id]);
+        });
+        resolve(friends);
+      }
+    });
   });
 };
 
@@ -66,7 +67,7 @@ const loginUser = async (user) => {
   return new Promise(async (resolve, reject) => {
     signInWithEmailAndPassword(auth, user.email, user.password)
       .then(async (userCredential) => {
-        getUserByEmail(user.email).then((response) => {
+        getUser("email", user.email).then((response) => {
           resolve({
             user: response[auth.currentUser.uid],
             credential: userCredential.user,
@@ -79,22 +80,40 @@ const loginUser = async (user) => {
   });
 };
 
-const logoutUser = () => {
-  signOut(auth);
+const logoutUser = async () => {
+  return new Promise(async (resolve, reject) => {
+    signOut(auth);
+    resolve("logged out");
+  });
 };
 
 const resetUserPassword = async (email) => {
-  try {
-    await sendPasswordResetEmail(auth, email);
-    // alert("Password reset link sent!");
-  } catch (err) {
-    console.error(err);
-  }
+  return new Promise(async (resolve, reject) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      resolve("Reset mail sent");
+    } catch (err) {
+      reject(err.code);
+    }
+  });
+};
+
+const confirmUserPasswordReset = async (oobCode, newPassword) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await confirmPasswordReset(auth, oobCode, newPassword);
+      resolve("password change success");
+    } catch (err) {
+      reject(err.code);
+    }
+  });
 };
 
 export {
-  getUserByUsername,
-  getUserByEmail,
+  getUser,
+  getUserFriends,
+  resetUserPassword,
+  confirmUserPasswordReset,
   registerUser,
   loginUser,
   logoutUser,

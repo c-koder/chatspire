@@ -1,6 +1,6 @@
-.main {
+.reset {
   width: 450px;
-  height: 575px;
+  height: 400px;
   background: var(--light);
   overflow: hidden;
   border-radius: 8px;
@@ -13,18 +13,18 @@
   height: 100%;
 }
 
-.main label {
+.reset label {
   color: var(--primary);
   font-size: 36px;
   justify-content: center;
   display: flex;
   margin: 40px;
+  cursor: default;
   font-weight: bold;
-  cursor: pointer;
   transition: 0.5s ease-in-out;
 }
 
-.main input {
+.reset input {
   width: 75%;
   height: 50px;
   background: var(--lightAccent);
@@ -39,11 +39,11 @@
   border-radius: 5px;
 }
 
-.main input::placeholder {
+.reset input::placeholder {
   color: var(--secondaryLight);
 }
 
-.main button {
+.reset button {
   width: 75%;
   height: 50px;
   margin: 20px auto;
@@ -61,55 +61,6 @@
   cursor: pointer;
 }
 
-.main button:hover {
+.reset button:hover {
   background: var(--primaryDark);
-}
-
-.login {
-  height: 480px;
-  background: var(--lightAccent);
-  border-radius: 60% / 5%;
-  transform: translateY(-150px);
-  transition: 0.5s ease-in-out;
-}
-
-.login .link {
-  color: var(--primary);
-  text-decoration: none;
-  transition: 200ms;
-}
-
-.login .link:hover {
-  letter-spacing: 0.02cm;
-}
-
-.login input {
-  background: var(--light);
-  opacity: 0.7;
-}
-
-.login input::placeholder {
-  color: var(--secondaryLight);
-}
-
-.login label {
-  color: var(--primary);
-  transform: scale(0.6);
-}
-
-#chk {
-  display: none;
-}
-
-#chk:checked ~ .login {
-  transform: translateY(-530px);
-}
-
-#chk:checked ~ .login label {
-  transform: scale(1);
-  padding-top: 40px;
-}
-
-#chk:checked ~ .signup label {
-  transform: scale(0.6);
 }
