@@ -5,7 +5,6 @@ const ChatFriends = ({
   chattingWithUser,
   setChattingWithUser,
 }) => {
-  console.log(chatFriends);
   return (
     <div>
       <div className="input-group mb-0 message-outer-box">

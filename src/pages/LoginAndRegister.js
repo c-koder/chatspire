@@ -7,9 +7,9 @@ import {
   invalidUsername,
   validEmail,
   validPassword,
-} from "../constants/validations";
+} from "../utils/validations";
 import PasswordStrengthMeter from "../utils/PasswordStrengthMeter";
-import { pageLoadVariants } from "../constants/animationVariants";
+import { pageLoadVariants } from "../utils/animationVariants";
 import { Link } from "react-router-dom";
 
 const UserService = require("../services/UserService");
@@ -30,33 +30,44 @@ const LoginAndRegister = () => {
 
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Whenever the registerUsername state changes, the useEffect will get called.
+   * What the function getUser does is returning the snapshot value returned by the firebase query.
+   * It is then checked if it's not null, thereby setting whether the username exists or not,
+   * using the setUsernameExists state.
+   */
   useEffect(() => {
     UserService.getUser("username", registerUsername).then((response) => {
       response !== null ? setUsernameExists(true) : setUsernameExists(false);
     });
   }, [registerUsername]);
 
+  /**
+   * User registration is handled by accumulating the username, email and the password from the user.
+   * Validation processes are carried on to ensure factors that affect account clashes,
+   * and other related events.
+   */
   const handleRegister = (e) => {
     e.preventDefault();
 
     if (registerUsername === "") {
-      setRegisterError("Username is required."); //empty username
-    } else if (registerUsername.length < 5) {
-      setRegisterError("Username must be atleast 5 chars."); //username < 5 chars
+      setRegisterError("Username is required.");
+    } else if (registerUsername.length < 5 || registerUsername.length > 10) {
+      setRegisterError("Username must be atleast 5 chars and not over 10.");
     } else if (invalidUsername(registerUsername)) {
-      setRegisterError("Username cannot contain special chars."); //username contain special chars
+      setRegisterError("Username cannot contain special chars.");
     } else if (usernameExists) {
-      setRegisterError("Username is not available."); //username already in use
+      setRegisterError("Username is not available.");
     } else if (registerEmail === "") {
-      setRegisterError("Email is required."); //empty email
+      setRegisterError("Email is required.");
     } else if (!validEmail(registerEmail)) {
-      setRegisterError("Invalid email format."); //invalid email format
+      setRegisterError("Invalid email format.");
     } else if (registerPassword === "") {
-      setRegisterError("Password is required."); //empty pwd
+      setRegisterError("Password is required.");
     } else if (registerPassword.length < 6) {
-      setRegisterError("Password must be atleast 6 chars."); //pwd < 6 chars
+      setRegisterError("Password must be atleast 6 chars.");
     } else if (!validPassword(registerPassword)) {
-      setRegisterError("Password is not secure enough."); //pwd is not secure enough
+      setRegisterError("Password is not secure enough.");
     } else {
       const user = {
         username: registerUsername,
@@ -89,14 +100,18 @@ const LoginAndRegister = () => {
     }
   };
 
+  /**
+   * User login is handled by accumulating the email and password from the user.
+   * Validations are carried to properly ensure the user's login process is a success.
+   */
   const handleLogin = (e) => {
     e.preventDefault();
     if (loginEmail === "") {
-      setLoginError("Email Required"); //empty email
+      setLoginError("Email Required");
     } else if (!validEmail(loginEmail)) {
-      setLoginError("Invalid email format."); //invalid email format
+      setLoginError("Invalid email format.");
     } else if (loginPassword === "") {
-      setLoginError("Password Required"); //empty pwd
+      setLoginError("Password Required");
     } else {
       const user = {
         email: loginEmail,
@@ -145,6 +160,10 @@ const LoginAndRegister = () => {
     },
   };
 
+  /**
+   * Clearing a registration error occured in the interface,
+   * after a delay of 5s after the state being changed.
+   */
   useEffect(() => {
     const timer = setInterval(() => {
       setRegisterError("");
@@ -152,6 +171,10 @@ const LoginAndRegister = () => {
     return () => clearInterval(timer);
   }, [registerError]);
 
+  /**
+   * Clearing a login error shown in the interface,
+   * occured after a delay of 5s after the state being changed.
+   */
   useEffect(() => {
     const timer = setInterval(() => {
       setLoginError("");

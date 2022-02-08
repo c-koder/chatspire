@@ -3,7 +3,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { onChildChanged, query, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 
-import { pageLoadVariants } from "../constants/animationVariants";
+import { pageLoadVariants } from "../utils/animationVariants";
 import ChatContainer from "../components/ChatContainer";
 import ChatFriends from "../components/ChatFriends";
 import { db } from "../firebase-config/config";
@@ -19,10 +19,12 @@ const Home = ({ chatFriends, setChatFriends }) => {
    * In success, results in resetting the chatFriends, Messages, etc.
    */
   const handleLogout = () => {
-    UserService.logoutUser().then(() => {
-      setChatFriends([]);
-    });
+    UserService.logoutUser();
   };
+
+  useEffect(() => {
+    console.log(chatFriends);
+  }, [chatFriends]);
 
   /**
    * User online/last seen listener

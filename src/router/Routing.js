@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 import Home from "../pages/Home";
 import logo from "../assets/logo.png";
@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import { AuthContext } from "../helpers/AuthContext";
 import { auth } from "../firebase-config/config";
 import LoginAndRegister from "../pages/LoginAndRegister";
-import { pageLoadVariants } from "../constants/animationVariants";
+import { pageLoadVariants } from "../utils/animationVariants";
 import ResetPassword from "../pages/ResetPassword";
 
 const UserService = require("../services/UserService");
@@ -68,25 +68,20 @@ const Routing = () => {
 
   return (
     <AuthContext.Provider value={{ currentUser }}>
-      <Router>
-        <Routes>
-          <Route
-            exact
-            path="/"
-            element={
-              currentUser ? (
-                <Home
-                  chatFriends={chatFriends}
-                  setChatFriends={setChatFriends}
-                />
-              ) : (
-                <LoginAndRegister />
-              )
-            }
-          />
-          <Route exact path="/resetpassword" element={<ResetPassword />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route
+          exact
+          path="/"
+          element={
+            currentUser !== null && !pending ? (
+              <Home chatFriends={chatFriends} setChatFriends={setChatFriends} />
+            ) : (
+              <LoginAndRegister />
+            )
+          }
+        />
+        <Route exact path="/resetpassword" element={<ResetPassword />} />
+      </Routes>
     </AuthContext.Provider>
   );
 };

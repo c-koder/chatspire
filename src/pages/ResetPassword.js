@@ -3,13 +3,16 @@ import "../styles/loader.css";
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { validEmail, validPassword } from "../constants/validations";
-import { pageLoadVariants } from "../constants/animationVariants";
+import { validEmail, validPassword } from "../utils/validations";
+import { pageLoadVariants } from "../utils/animationVariants";
 import { useLocation, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../utils/PasswordStrengthMeter";
 
 const UserService = require("../services/UserService");
 
+/**
+ * This custom hook returns parameters found in the URL.
+ */
 const useQuery = () => {
   const location = useLocation();
   return new URLSearchParams(location.search);
@@ -27,12 +30,20 @@ const ResetPassword = () => {
 
   const query = useQuery();
 
+  /**
+   * User password reset process is handled by accumulating the user email.
+   * A password reset mail is forwarded to the provided email,
+   * if and only if such a user with the given email exists.
+   * In an event where the email is not found, user will be notified.
+   * Otherwise, when the user has arrived at the link provided through the password reset mail,
+   * they are redirected to the site enabling them to set a new password.
+   */
   const handleReset = (e) => {
     e.preventDefault();
     if (resetEmail === "") {
-      setResetError("Email Required"); //empty email
+      setResetError("Email Required");
     } else if (!validEmail(resetEmail)) {
-      setResetError("Invalid email format."); //invalid email format
+      setResetError("Invalid email format.");
     } else {
       setLoading(true);
       UserService.resetUserPassword(resetEmail)
@@ -53,14 +64,20 @@ const ResetPassword = () => {
     }
   };
 
+  /**
+   * User password reset process is then continued after the user has provided a new password.
+   * Once the basic validation processes are complete, a firebase method will be called,
+   * where the provided authentication instance, oobCode, and the new password are validated,
+   * and if valid, the user's password will be reset and not otherwise.
+   */
   const handleConfirmReset = (e) => {
     e.preventDefault();
     if (newPassword === "") {
-      setResetError("Password Required"); //empty password
+      setResetError("Password Required");
     } else if (newPassword.length < 6) {
-      setResetError("Password must be atleast 6 chars."); //pwd < 6 chars
+      setResetError("Password must be atleast 6 chars.");
     } else if (!validPassword(newPassword)) {
-      setResetError("Password is not secure enough."); //pwd is not secure enough
+      setResetError("Password is not secure enough.");
     } else {
       setLoading(true);
       UserService.confirmPasswordReset(query.get("oobCode"), newPassword)
@@ -99,6 +116,10 @@ const ResetPassword = () => {
     },
   };
 
+  /**
+   * Clearing a reset error shown in the interface,
+   * occured after a delay of 5s after the state being changed.
+   */
   useEffect(() => {
     const timer = setInterval(() => {
       setResetError("");
