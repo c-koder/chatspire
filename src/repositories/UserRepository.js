@@ -22,7 +22,7 @@ const getUser = async (by, value) => {
   const fbQuery = query(ref(db, "users/"), orderByChild(by), equalTo(value));
 
   return new Promise(async (resolve, reject) => {
-    get(fbQuery)
+    await get(fbQuery)
       .then((snapshot) => {
         resolve(snapshot.val());
       })
@@ -40,18 +40,28 @@ const getUser = async (by, value) => {
 const getUserFriends = async () => {
   const fbQuery = query(
     ref(db, "user_friends/"),
-    orderByChild("id"),
+    orderByChild("user_id"),
     equalTo(auth.currentUser.uid)
   );
 
   return new Promise(async (resolve, reject) => {
-    get(fbQuery).then((snapshot) => {
+    await get(fbQuery).then(async (snapshot) => {
       if (snapshot.exists()) {
         let friends = [];
-        snapshot.val().map(async (data) => {
-          const response = await getUser("id", data.friend_id);
-          friends.push(response[data.friend_id]);
-        });
+        if (snapshot.val().length > 1) {
+          snapshot.val().map(async (data) => {
+            const response = await getUser("id", data.friend_id);
+            friends.push(response[data.friend_id]);
+          });
+        } else {
+          const response = await getUser(
+            "id",
+            snapshot.val()[Object.keys(snapshot.val())[0]].friend_id
+          );
+          friends.push(
+            response[snapshot.val()[Object.keys(snapshot.val())[0]].friend_id]
+          );
+        }
         resolve(friends);
       }
     });
@@ -71,7 +81,7 @@ const getUserFriends = async () => {
  */
 const registerUser = async (user) => {
   return new Promise(async (resolve, reject) => {
-    createUserWithEmailAndPassword(auth, user.email, user.password)
+    await createUserWithEmailAndPassword(auth, user.email, user.password)
       .then(async (userCredential) => {
         if (userCredential !== null || userCredential !== undefined)
           set(ref(db, `users/${auth.currentUser.uid}`), {
@@ -98,7 +108,7 @@ const registerUser = async (user) => {
  */
 const loginUser = async (user) => {
   return new Promise(async (resolve, reject) => {
-    signInWithEmailAndPassword(auth, user.email, user.password)
+    await signInWithEmailAndPassword(auth, user.email, user.password)
       .then(async (userCredential) => {
         if (userCredential !== null || userCredential !== undefined) {
           getUser("email", user.email).then((response) => {

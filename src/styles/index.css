@@ -171,10 +171,12 @@ img {
 }
 
 .chat .chat-history {
+  /* transform: rotate(180deg); */
   height: 60vh;
   padding: 20px;
-  border-bottom: 1px solid var(--lightAccent);
-  overflow-x: auto;
+  /* flex-direction: column-reverse; */
+  /* justify-content: flex-start; */
+  overflow: scroll;
 }
 
 .chat .chat-history ul {
@@ -182,12 +184,10 @@ img {
 }
 
 .chat .chat-history ul li {
+  /* word-break: break-all;
+  transform: rotate(180deg); */
   list-style: none;
-  margin-bottom: 30px;
-}
-
-.chat .chat-history ul li:last-child {
-  margin-bottom: 0px;
+  margin-bottom: 10px;
 }
 
 .chat .chat-history .message-data {
@@ -201,30 +201,67 @@ img {
 
 .chat .chat-history .message-data-time {
   color: var(--dark);
-  font-size: 12px;
+  font-weight: 100;
+  font-size: 11px;
+  float: right;
+  text-align: right;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
 }
 
 .chat .chat-history .message {
   min-width: 80px;
   color: var(--dark);
-  padding: 12px;
-  margin: -5px 0px;
+  padding: 4px 8px;
   line-height: 26px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   border-radius: 7px;
   display: inline-block;
   position: relative;
 }
 
+.chat .chat-history .message::after {
+  content: "";
+  width: 0.6em;
+  height: 0.6em;
+  position: absolute;
+  bottom: 0;
+}
+
 .chat .chat-history .my-message {
+  border-bottom-right-radius: 0;
   background: var(--primaryLight);
   text-align: right;
 }
 
+.chat .chat-history .my-message::after {
+  right: 0;
+  transform: translateX(100%);
+  background: radial-gradient(
+    circle at 100% 0,
+    transparent,
+    transparent 72%,
+    var(--primaryLight) 72%
+  );
+}
+
 .chat .chat-history .other-message {
+  border-bottom-left-radius: 0;
   background: var(--lightAccent);
   text-align: left;
+}
+
+.chat .chat-history .other-message::after {
+  left: 0;
+  transform: translateX(-100%);
+  background: radial-gradient(
+    circle at 0 0,
+    transparent,
+    transparent 72%,
+    var(--lightAccent) 72%
+  );
 }
 
 .chat .chat-message {
@@ -260,6 +297,7 @@ img {
   border-radius: 5px;
   padding: 8px 0px 6px 10px;
   max-height: 80px;
+  margin-top: -5px;
 }
 
 .message-box {

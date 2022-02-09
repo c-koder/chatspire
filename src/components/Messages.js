@@ -4,7 +4,7 @@ import Message from "./Message";
 
 const Messages = ({ messages }) => {
   const { currentUser } = useContext(AuthContext);
-  
+
   return (
     <div className="chat-history">
       <ul className="m-b-0">
@@ -13,7 +13,7 @@ const Messages = ({ messages }) => {
             <Message
               key={message.id}
               message={message}
-              isUserMessage={currentUser.uid == message.from_uid}
+              isUserMessage={currentUser.uid == message.sender_id}
             />
           );
         })}

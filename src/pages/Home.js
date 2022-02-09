@@ -1,18 +1,17 @@
 import { motion } from "framer-motion";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { onChildChanged, query, ref } from "firebase/database";
+import { onChildAdded, onChildChanged, query, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 
 import { pageLoadVariants } from "../utils/animationVariants";
 import ChatContainer from "../components/ChatContainer";
 import ChatFriends from "../components/ChatFriends";
-import { db } from "../firebase-config/config";
+import { auth, db } from "../firebase-config/config";
 
 const UserService = require("../services/UserService");
 
-const Home = ({ chatFriends, setChatFriends }) => {
+const Home = ({ chatFriends, setChatFriends, messages, setMessages }) => {
   const [chattingWithUser, setChattingWithUser] = useState(null);
-  const [messages, setMessages] = useState([]);
 
   /**
    * Handling the logout using the firebase signout function.
@@ -21,10 +20,6 @@ const Home = ({ chatFriends, setChatFriends }) => {
   const handleLogout = () => {
     UserService.logoutUser();
   };
-
-  useEffect(() => {
-    console.log(chatFriends);
-  }, [chatFriends]);
 
   /**
    * User online/last seen listener
@@ -43,6 +38,16 @@ const Home = ({ chatFriends, setChatFriends }) => {
       );
     });
   }, [chatFriends, setChatFriends]);
+
+  /* TODO */
+  useEffect(() => {
+    onChildAdded(query(ref(db, "messages/")), (snapshot) => {
+      let filteredMessage = messages.filter(
+        (message) => message.id !== snapshot.val().id
+      );
+      setMessages([...filteredMessage, snapshot.val()]);
+    });
+  }, []);
 
   return (
     <motion.div

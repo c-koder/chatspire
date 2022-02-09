@@ -5,6 +5,9 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import Messages from "../components/Messages";
 import logo from "../assets/logo.png";
 import moment from "moment";
+import { auth } from "../firebase-config/config";
+
+const MessageService = require("../services/MessageService");
 
 const ChatContainer = ({ messages, chattingWithUser }) => {
   const ref = useRef(null);
@@ -31,9 +34,30 @@ const ChatContainer = ({ messages, chattingWithUser }) => {
     };
   }, [ref]);
 
+  const sendMessage = (e) => {
+    e.preventDefault();
+    if (message !== "") {
+      const obj = {
+        sender_id: auth.currentUser.uid,
+        receiver_id: chattingWithUser.id,
+        context: message,
+        timestamp: moment().format("YYYY-MM-DD HH:mm:ss").toString(),
+      };
+      MessageService.sendMessage(obj)
+        .then((response) => {
+          if (response !== null) {
+            setMessage("");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
   return (
     <>
-      {chattingWithUser != null ? (
+      {chattingWithUser !== null ? (
         <div>
           <div className="chat-header clearfix">
             <div className="row">
@@ -77,7 +101,11 @@ const ChatContainer = ({ messages, chattingWithUser }) => {
                 className="input-group-prepend"
                 style={{ marginRight: "8px" }}
               >
-                <button className="btn shadow-none btn-send" type="button">
+                <button
+                  className="btn shadow-none btn-send"
+                  type="button"
+                  onClick={sendMessage}
+                >
                   <i className="fa fa-send"></i>
                 </button>
               </div>
@@ -126,7 +154,7 @@ const ChatContainer = ({ messages, chattingWithUser }) => {
         <div
           className="chat-history"
           style={{
-            height: "79.35vh",
+            height: "79.4vh",
             border: "none",
             position: "relative",
           }}

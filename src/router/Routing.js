@@ -13,13 +13,21 @@ import { pageLoadVariants } from "../utils/animationVariants";
 import ResetPassword from "../pages/ResetPassword";
 
 const UserService = require("../services/UserService");
+const MessageService = require("../services/MessageService");
 
 const Routing = () => {
   const [currentUser, setCurrentUser] = useState(null);
+
   const [chatFriends, setChatFriends] = useState([]);
+  const [messages, setMessages] = useState([]);
+
   const [pending, setPending] = useState(true);
   const [loadingText, setLoadingText] = useState("loading, please wait...");
 
+  /**
+   * Observing user's sign in state.
+   * When a user logs in, getUserFriends() method will be fired and the friend will be fetched.
+   */
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       setLoadingText("authorizing...");
@@ -33,7 +41,28 @@ const Routing = () => {
           }
         })
         .catch((err) => {});
+
+      MessageService.getUserMessages()
+        .then((response) => {
+          if (response !== null) {
+            setMessages(response);
+          }
+        })
+        .catch((err) => {});
     });
+    // const message = {
+    //   sender_id: "RLZr45zUznfdUNjdNl7fS0YjZ4O2",
+    //   receiver_id: "rYmOae5MqLZI3L6jdlqSPA7Uy912",
+    //   context: "Wasap!",
+    //   timestamp: "2022-02-08 20:05:34",
+    // };
+    // MessageService.sendMessage(message)
+    //   .then((response) => {
+    //     console.log(response);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
   }, []);
 
   setTimeout(() => setPending(false), 2000);
@@ -74,7 +103,12 @@ const Routing = () => {
           path="/"
           element={
             currentUser !== null && !pending ? (
-              <Home chatFriends={chatFriends} setChatFriends={setChatFriends} />
+              <Home
+                chatFriends={chatFriends}
+                setChatFriends={setChatFriends}
+                messages={messages}
+                setMessages={setMessages}
+              />
             ) : (
               <LoginAndRegister />
             )

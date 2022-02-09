@@ -3,7 +3,7 @@ import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
 /**
- * Configuring firebase
+ * Configuring firebase with the provided api key and other required details.
  */
 const firebaseConfig = {
   apiKey: "AIzaSyAipqYICE4YRRJEN7aHMriKPBivBlCXeIo",
