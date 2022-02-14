@@ -48,19 +48,9 @@ const getUserFriends = async () => {
     await get(fbQuery).then(async (snapshot) => {
       if (snapshot.exists()) {
         let friends = [];
-        if (snapshot.val().length > 1) {
-          snapshot.val().map(async (data) => {
-            const response = await getUser("id", data.friend_id);
-            friends.push(response[data.friend_id]);
-          });
-        } else {
-          const response = await getUser(
-            "id",
-            snapshot.val()[Object.keys(snapshot.val())[0]].friend_id
-          );
-          friends.push(
-            response[snapshot.val()[Object.keys(snapshot.val())[0]].friend_id]
-          );
+        for (let data in snapshot.val()) {
+          const response = await getUser("id", snapshot.val()[data].friend_id);
+          friends.push(response[snapshot.val()[data].friend_id]);
         }
         resolve(friends);
       }
@@ -88,6 +78,10 @@ const registerUser = async (user) => {
             id: auth.currentUser.uid,
             username: user.username,
             email: user.email,
+            avatar: "",
+            onlineOrLastSeen: "online",
+            lastMessage: "",
+            isTyping: false,
           }).then(() => {
             resolve("Success");
           });
@@ -176,6 +170,18 @@ const confirmUserPasswordReset = async (oobCode, newPassword) => {
   });
 };
 
+const setUserIsTyping = async (val) => {
+  return new Promise(async (resolve, reject) => {
+    set(ref(db, `users/${auth.currentUser.uid}/isTyping`), val)
+      .then(() => {
+        resolve("success");
+      })
+      .catch((err) => {
+        reject(err.code);
+      });
+  });
+};
+
 export {
   getUser,
   getUserFriends,
@@ -184,4 +190,5 @@ export {
   registerUser,
   loginUser,
   logoutUser,
+  setUserIsTyping,
 };

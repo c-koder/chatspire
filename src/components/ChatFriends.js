@@ -1,3 +1,6 @@
+import { useState } from "react";
+
+
 import ChatFriend from "./ChatFriend";
 
 const ChatFriends = ({
@@ -28,7 +31,7 @@ const ChatFriends = ({
               user={chatFriend}
               active={
                 chattingWithUser !== null &&
-                chatFriend.username === chattingWithUser.username
+                chatFriend.id === chattingWithUser.id
               }
               setChattingWithUser={setChattingWithUser}
             />

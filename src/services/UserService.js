@@ -86,6 +86,10 @@ const confirmPasswordReset = async (oobCode, newPassword) => {
   return UserRepository.confirmUserPasswordReset(oobCode, newPassword);
 };
 
+const setUserIsTyping = async (val) => {
+  return UserRepository.setUserIsTyping(val);
+};
+
 export {
   getUser,
   getUserFriends,
@@ -93,5 +97,6 @@ export {
   registerUser,
   loginUser,
   resetUserPassword,
+  setUserIsTyping,
   logoutUser,
 };

@@ -1,5 +1,16 @@
 import { auth, db } from "../firebase-config/config";
-import { ref, get, set, query, orderByChild, equalTo } from "firebase/database";
+import {
+  ref,
+  get,
+  set,
+  query,
+  orderByChild,
+  equalTo,
+  limitToLast,
+  startAt,
+} from "firebase/database";
+import CryptoAES from "crypto-js/aes";
+import cryptoJs from "crypto-js";
 
 const getTotalMessageCount = async () => {
   const fbQuery = query(ref(db, "message_index/"));
@@ -36,7 +47,6 @@ const setTotalMessageCount = async (index) => {
 
 const sendMessage = async (message) => {
   const id = (await getTotalMessageCount()) + 1;
-
   return new Promise(async (resolve, reject) => {
     await set(ref(db, `messages/${id}`), {
       id: id,
@@ -63,7 +73,12 @@ const getUserMessages = async () => {
   return new Promise(async (resolve, reject) => {
     await get(fbQuery)
       .then(async (snapshot) => {
-        snapshot.val().map((message) => {
+        snapshot.val().forEach((message) => {
+          const decryptedMessage = CryptoAES.decrypt(
+            message.context,
+            "eripstahc"
+          );
+          message.context = decryptedMessage.toString(cryptoJs.enc.Utf8);
           if (
             message.sender_id === auth.currentUser.uid ||
             message.receiver_id === auth.currentUser.uid
@@ -79,4 +94,55 @@ const getUserMessages = async () => {
   });
 };
 
-export { sendMessage, getUserMessages };
+const getUserLastMessage = async (sender_id) => {
+  const fbQuery = query(
+    ref(db, "messages/"),
+    orderByChild("receiver_id"),
+    equalTo(sender_id),
+    limitToLast(1)
+  );
+  return new Promise(async (resolve, reject) => {
+    await get(fbQuery)
+      .then(async (snapshot) => {
+        if (snapshot.exists()) {
+          const snapshotMsg = snapshot.val()[Object.keys(snapshot.val())[0]];
+          const decryptedMessage = CryptoAES.decrypt(
+            snapshotMsg.context,
+            "eripstahc"
+          );
+          snapshotMsg.context = decryptedMessage.toString(cryptoJs.enc.Utf8);
+          resolve(snapshotMsg);
+        } else {
+          const fbQuery = query(
+            ref(db, "messages/"),
+            orderByChild("sender_id"),
+            equalTo(sender_id),
+            limitToLast(1)
+          );
+          await get(fbQuery)
+            .then(async (snapshot) => {
+              if (snapshot.exists()) {
+                const snapshotMsg =
+                  snapshot.val()[Object.keys(snapshot.val())[0]];
+                const decryptedMessage = CryptoAES.decrypt(
+                  snapshotMsg.context,
+                  "eripstahc"
+                );
+                snapshotMsg.context = decryptedMessage.toString(
+                  cryptoJs.enc.Utf8
+                );
+                resolve(snapshotMsg);
+              }
+            })
+            .catch((err) => {
+              reject(err.code);
+            });
+        }
+      })
+      .catch((err) => {
+        reject(err.code);
+      });
+  });
+};
+
+export { sendMessage, getUserMessages, getUserLastMessage };

@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { messageContainsEmojis } from "../utils/validations";
 
 const Message = ({ message, isUserMessage }) => {
   /**
@@ -17,6 +17,12 @@ const Message = ({ message, isUserMessage }) => {
             ? "message my-message float-right"
             : "message other-message"
         }
+        style={{
+          fontSize:
+            messageContainsEmojis(message.context) &&
+            message.context.length < 3 &&
+            28,
+        }}
       >
         {message.context}
         <span className="message-data-time"> {convertedTime}</span>

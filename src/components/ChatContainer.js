@@ -1,46 +1,73 @@
 import { useEffect, useRef, useState } from "react";
 import Picker from "emoji-picker-react";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { onChildAdded, query, ref } from "firebase/database";
+import CryptoAES from "crypto-js/aes";
+import { debounce } from "lodash";
 
 import Messages from "../components/Messages";
 import logo from "../assets/logo.png";
 import moment from "moment";
-import { auth } from "../firebase-config/config";
+import { auth, db } from "../firebase-config/config";
 
 const MessageService = require("../services/MessageService");
+const UserService = require("../services/UserService");
 
-const ChatContainer = ({ messages, chattingWithUser }) => {
-  const ref = useRef(null);
+const ChatContainer = ({ chatFriends, chattingWithUser }) => {
+  const emojiRef = useRef(null);
 
   const [showEmojis, setShowEmojis] = useState(false);
   const [messageBox, setMessageBox] = useState(null);
+
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
 
   const onEmojiClick = (event, emojiObject) => {
     setMessage(message + emojiObject.emoji);
     messageBox.focus();
   };
 
+  const handleIsTyping = debounce(function () {
+    setIsTyping(false);
+  }, 2000);
+
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (ref.current && !ref.current.contains(event.target)) {
+    UserService.setUserIsTyping(isTyping).catch((err) => console.log(err));
+  }, [isTyping]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (emojiRef.current && !emojiRef.current.contains(event.target)) {
         setShowEmojis(false);
       }
-    }
-
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [ref]);
+  }, [emojiRef]);
+
+  useEffect(() => {
+    onChildAdded(query(ref(db, "messages/")), (snapshot) => {
+      MessageService.getUserMessages()
+        .then((response) => {
+          if (response !== null) {
+            setMessages(response);
+          }
+        })
+        .catch((err) => {});
+    });
+  }, []);
 
   const sendMessage = (e) => {
     e.preventDefault();
     if (message !== "") {
+      const encryptedMessage = CryptoAES.encrypt(message, "eripstahc");
       const obj = {
         sender_id: auth.currentUser.uid,
         receiver_id: chattingWithUser.id,
-        context: message,
+        context: encryptedMessage.toString(),
         timestamp: moment().format("YYYY-MM-DD HH:mm:ss").toString(),
       };
       MessageService.sendMessage(obj)
@@ -92,24 +119,18 @@ const ChatContainer = ({ messages, chattingWithUser }) => {
             </div>
           </div>
 
-          <Messages messages={messages} />
+          <Messages messages={messages} chatFriend={chatFriends} chattingWithUser={chattingWithUser} />
 
           {/* message box */}
           <div className="chat-message clearfix">
-            <div className="input-group mb-0 message-outer-box">
+            <div className="input-group mb-0">
               <div
+                ref={emojiRef}
                 className="input-group-prepend"
-                style={{ marginRight: "8px" }}
+                style={{
+                  marginRight: "8px",
+                }}
               >
-                <button
-                  className="btn shadow-none btn-send"
-                  type="button"
-                  onClick={sendMessage}
-                >
-                  <i className="fa fa-send"></i>
-                </button>
-              </div>
-              <div ref={ref} className="input-group-prepend">
                 <button
                   className="btn shadow-none btn-send"
                   type="button"
@@ -139,14 +160,35 @@ const ChatContainer = ({ messages, chattingWithUser }) => {
                   </div>
                 )}
               </div>
+              <div className="input-group-prepend">
+                <button className="btn shadow-none btn-send" type="button">
+                  <i className="fa fa-paperclip"></i>
+                </button>
+              </div>
               <textarea
                 ref={(msgBox) => setMessageBox(msgBox)}
-                className="form-control shadow-none message-box"
-                placeholder="Enter your message..."
+                className="form-control shadow-none message-box txtarea"
+                placeholder="Type your message..."
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                  setIsTyping(true);
+                  handleIsTyping();
+                }}
                 rows={1}
               />
+              <div
+                className="input-group-prepend"
+                style={{ marginRight: "8px" }}
+              >
+                <button
+                  className="btn shadow-none btn-send float-right"
+                  type="button"
+                  onClick={sendMessage}
+                >
+                  <i className="fa fa-send"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -154,7 +196,7 @@ const ChatContainer = ({ messages, chattingWithUser }) => {
         <div
           className="chat-history"
           style={{
-            height: "79.4vh",
+            height: "74vh",
             border: "none",
             position: "relative",
           }}

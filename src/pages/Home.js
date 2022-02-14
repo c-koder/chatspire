@@ -1,18 +1,17 @@
 import { motion } from "framer-motion";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { onChildAdded, onChildChanged, query, ref } from "firebase/database";
+import { onChildChanged, query, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 
 import { pageLoadVariants } from "../utils/animationVariants";
 import ChatContainer from "../components/ChatContainer";
 import ChatFriends from "../components/ChatFriends";
-import { auth, db } from "../firebase-config/config";
+import { db } from "../firebase-config/config";
 
 const UserService = require("../services/UserService");
 
-const Home = ({ chatFriends, setChatFriends, messages, setMessages }) => {
+const Home = ({ chatFriends, setChatFriends }) => {
   const [chattingWithUser, setChattingWithUser] = useState(null);
-
   /**
    * Handling the logout using the firebase signout function.
    * In success, results in resetting the chatFriends, Messages, etc.
@@ -31,23 +30,12 @@ const Home = ({ chatFriends, setChatFriends, messages, setMessages }) => {
     onChildChanged(query(ref(db, "users/")), (snapshot) => {
       setChatFriends(
         chatFriends.map((friend) =>
-          friend.id === snapshot.val().id
-            ? { ...friend, onlineOrLastSeen: snapshot.val().onlineOrLastSeen }
-            : friend
+          friend.id === snapshot.val().id ? snapshot.val() : friend
         )
       );
     });
   }, [chatFriends, setChatFriends]);
 
-  /* TODO */
-  useEffect(() => {
-    onChildAdded(query(ref(db, "messages/")), (snapshot) => {
-      let filteredMessage = messages.filter(
-        (message) => message.id !== snapshot.val().id
-      );
-      setMessages([...filteredMessage, snapshot.val()]);
-    });
-  }, []);
 
   return (
     <motion.div
@@ -64,7 +52,7 @@ const Home = ({ chatFriends, setChatFriends, messages, setMessages }) => {
             <div className="card chat-app">
               <div className="chat">
                 <ChatContainer
-                  messages={messages}
+                  chatFriends={chatFriends}
                   chattingWithUser={chattingWithUser}
                 />
               </div>

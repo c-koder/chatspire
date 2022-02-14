@@ -60,10 +60,10 @@
   position: absolute;
   width: 32px;
   height: 32px;
-  border: 5px solid var(--primary);
+  border: 5px solid rgba(var(--primary), 1);
   border-radius: 50%;
   animation: ring 1.2s cubic-bezier(0.4, 0, 0.4, 1) infinite;
-  border-color: var(--primary) transparent transparent transparent;
+  border-color: rgba(var(--primary), 1) transparent transparent transparent;
 }
 .ring div:nth-child(1) {
   animation-delay: -0.45s;
