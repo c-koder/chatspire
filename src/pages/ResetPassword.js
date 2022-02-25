@@ -3,8 +3,8 @@ import "../styles/loader.css";
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { validEmail, validPassword } from "../utils/validations";
-import { pageLoadVariants } from "../utils/animationVariants";
+import { validEmail, validPassword } from "../utils/Validations";
+import { pageLoadVariants } from "../utils/AnimationVariants";
 import { useLocation, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../utils/PasswordStrengthMeter";
 

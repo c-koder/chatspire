@@ -14,7 +14,7 @@
 }
 
 .reset label {
-  color: rgba(var(--primary), 1);
+  color: var(--primary);
   font-size: 36px;
   justify-content: center;
   display: flex;
@@ -50,7 +50,7 @@
   justify-content: center;
   display: block;
   color: var(--light);
-  background: rgba(var(--primary), 1);
+  background: var(--primary);
   font-size: 1em;
   font-weight: bold;
   margin-top: 20px;

@@ -1,6 +1,3 @@
-import { useState } from "react";
-
-
 import ChatFriend from "./ChatFriend";
 
 const ChatFriends = ({
@@ -9,20 +6,7 @@ const ChatFriends = ({
   setChattingWithUser,
 }) => {
   return (
-    <div>
-      <div className="input-group mb-0 message-outer-box">
-        <div className="input-group-prepend">
-          <button className="btn shadow-none btn-send" type="button">
-            <i className="fa fa-search"></i>
-          </button>
-        </div>
-        <input
-          type="text"
-          className="form-control shadow-none message-box"
-          placeholder="Search..."
-          rows={1}
-        />
-      </div>
+    <div style={{ marginTop: 80 }}>
       <ul className="list-unstyled chat-list mt-2 mb-0">
         {chatFriends.map((chatFriend) => {
           return (

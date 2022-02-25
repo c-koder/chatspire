@@ -1,5 +1,6 @@
+import { Parser } from "html-to-react";
 import moment from "moment";
-import { messageContainsEmojis } from "../utils/validations";
+import { messageContainsEmojis } from "../utils/Validations";
 
 const Message = ({ message, isUserMessage }) => {
   /**
@@ -8,7 +9,7 @@ const Message = ({ message, isUserMessage }) => {
    * of the delivered/received message.
    */
   const convertedTime = moment(message.timestamp).format("hh:mm A");
-
+  const isEmojiMessage = message.context.replace(/<[^>]*>/g, "");
   return (
     <li className="clearfix">
       <div
@@ -19,12 +20,18 @@ const Message = ({ message, isUserMessage }) => {
         }
         style={{
           fontSize:
-            messageContainsEmojis(message.context) &&
-            message.context.length < 3 &&
+            messageContainsEmojis(isEmojiMessage) &&
+            isEmojiMessage.length <= 4 &&
             28,
+          padding:
+            messageContainsEmojis(isEmojiMessage) &&
+            isEmojiMessage.length <= 4 &&
+            "10px 10px",
         }}
       >
-        {message.context}
+        {messageContainsEmojis(isEmojiMessage) && isEmojiMessage.length <= 4
+          ? isEmojiMessage
+          : Parser().parse(message.context)}
         <span className="message-data-time"> {convertedTime}</span>
       </div>
     </li>

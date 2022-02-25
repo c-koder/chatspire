@@ -4,6 +4,8 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { onChildAdded, query, ref } from "firebase/database";
 import CryptoAES from "crypto-js/aes";
 import { debounce } from "lodash";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.bubble.css";
 
 import Messages from "../components/Messages";
 import logo from "../assets/logo.png";
@@ -13,18 +15,30 @@ import { auth, db } from "../firebase-config/config";
 const MessageService = require("../services/MessageService");
 const UserService = require("../services/UserService");
 
+const modules = {
+  toolbar: [["bold", "italic", "underline"]],
+  clipboard: {
+    matchVisual: false,
+  },
+};
+
+const formats = ["bold", "italic", "underline"];
+
 const ChatContainer = ({ chatFriends, chattingWithUser }) => {
   const emojiRef = useRef(null);
 
   const [showEmojis, setShowEmojis] = useState(false);
   const [messageBox, setMessageBox] = useState(null);
 
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
 
   const onEmojiClick = (event, emojiObject) => {
-    setMessage(message + emojiObject.emoji);
+    console.log(message);
+    setMessage(
+      message === null ? emojiObject.emoji : message + emojiObject.emoji
+    );
     messageBox.focus();
   };
 
@@ -89,10 +103,7 @@ const ChatContainer = ({ chatFriends, chattingWithUser }) => {
           <div className="chat-header clearfix">
             <div className="row">
               <div className="col-lg-6">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                  alt="avatar"
-                />
+                <img src={chattingWithUser.avatar} alt="avatar" />
                 <div className="chat-about">
                   <h6 className="mb-0">{chattingWithUser.username}</h6>
                   <div className="status">
@@ -119,9 +130,12 @@ const ChatContainer = ({ chatFriends, chattingWithUser }) => {
             </div>
           </div>
 
-          <Messages messages={messages} chatFriend={chatFriends} chattingWithUser={chattingWithUser} />
+          <Messages
+            messages={messages}
+            chatFriend={chatFriends}
+            chattingWithUser={chattingWithUser}
+          />
 
-          {/* message box */}
           <div className="chat-message clearfix">
             <div className="input-group mb-0">
               <div
@@ -165,7 +179,21 @@ const ChatContainer = ({ chatFriends, chattingWithUser }) => {
                   <i className="fa fa-paperclip"></i>
                 </button>
               </div>
-              <textarea
+              <ReactQuill
+                ref={(msgBox) => setMessageBox(msgBox)}
+                placeholder="Type your message..."
+                onChange={(html) => {
+                  setMessage(html);
+                  setIsTyping(true);
+                  handleIsTyping();
+                }}
+                className="form-control message-box"
+                theme={"bubble"}
+                value={message || ""}
+                modules={modules}
+                formats={formats}
+              />
+              {/* <textarea
                 ref={(msgBox) => setMessageBox(msgBox)}
                 className="form-control shadow-none message-box txtarea"
                 placeholder="Type your message..."
@@ -176,7 +204,7 @@ const ChatContainer = ({ chatFriends, chattingWithUser }) => {
                   handleIsTyping();
                 }}
                 rows={1}
-              />
+              /> */}
               <div
                 className="input-group-prepend"
                 style={{ marginRight: "8px" }}
@@ -194,11 +222,11 @@ const ChatContainer = ({ chatFriends, chattingWithUser }) => {
         </div>
       ) : (
         <div
-          className="chat-history"
           style={{
-            height: "74vh",
+            height: "72.5vh",
             border: "none",
             position: "relative",
+            backgroundColor: "var(--light)",
           }}
         >
           <img

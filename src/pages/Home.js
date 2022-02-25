@@ -3,7 +3,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { onChildChanged, query, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 
-import { pageLoadVariants } from "../utils/animationVariants";
+import { pageLoadVariants } from "../utils/AnimationVariants";
 import ChatContainer from "../components/ChatContainer";
 import ChatFriends from "../components/ChatFriends";
 import { db } from "../firebase-config/config";
@@ -36,7 +36,6 @@ const Home = ({ chatFriends, setChatFriends }) => {
     });
   }, [chatFriends, setChatFriends]);
 
-
   return (
     <motion.div
       className="centered"
@@ -45,7 +44,6 @@ const Home = ({ chatFriends, setChatFriends }) => {
       animate="visible"
       exit="exit"
     >
-      <button onClick={handleLogout}>Logout</button>
       <div className="container">
         <div className="clearfix">
           <div className="col-lg-12">
@@ -57,6 +55,49 @@ const Home = ({ chatFriends, setChatFriends }) => {
                 />
               </div>
               <div id="plist" className="people-list">
+                <div
+                  style={{
+                    display: "flex",
+                    position: "fixed",
+                    backgroundColor: "var(--light)",
+                    paddingBottom: 13,
+                    boxShadow: "0 5px 50px 1px rgb(0 0 0 / 5%)",
+                    width: "fit-content",
+                  }}
+                >
+                  <div
+                    className="input-group mb-0 message-outer-box"
+                    style={{ margin: 14, marginTop: 10, width: "75%" }}
+                  >
+                    <div className="input-group-prepend">
+                      <button
+                        className="btn shadow-none btn-send"
+                        type="button"
+                      >
+                        <i className="fa fa-search"></i>
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      className="form-control shadow-none message-box"
+                      style={{ padding: "8px" }}
+                      placeholder="Search..."
+                      rows={1}
+                    />
+                  </div>
+                  <div
+                    className="input-group-prepend"
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      margin: "17px 0px 0px 0px",
+                    }}
+                  >
+                    <button className="btn shadow-none btn-send" type="button">
+                      <i className="bi bi-gear-fill"></i>
+                    </button>
+                  </div>
+                </div>
                 <ChatFriends
                   chatFriends={chatFriends}
                   chattingWithUser={chattingWithUser}

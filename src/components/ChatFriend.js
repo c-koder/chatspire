@@ -1,3 +1,6 @@
+import { Parser } from "html-to-react";
+import { messageContainsEmojis } from "../utils/Validations";
+
 const ChatFriend = ({ user, active, setChattingWithUser }) => {
   const handleCurrentChattingUser = () => {
     setChattingWithUser(user);
@@ -16,10 +19,7 @@ const ChatFriend = ({ user, active, setChattingWithUser }) => {
   return (
     <div onClick={handleCurrentChattingUser}>
       <li className={active ? "clearfix active" : "clearfix"}>
-        <img
-          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-          alt="avatar"
-        />
+        <img src={user.avatar} alt="avatar" />
         <i
           className={
             user.onlineOrLastSeen === "online"
@@ -28,15 +28,20 @@ const ChatFriend = ({ user, active, setChattingWithUser }) => {
           }
           style={{
             position: "absolute",
-            marginTop: 5,
-            marginLeft: -8,
+            left: 0,
+            marginLeft: 70,
             fontSize: 14,
           }}
         ></i>
         <div className="about">
           <div className="name">{user.username} </div>
           <div className="status">
-            {user.isTyping ? "typing..." : userLastMessage}
+            {user.isTyping
+              ? "typing..."
+              : messageContainsEmojis(userLastMessage) &&
+                userLastMessage.length <= 4
+              ? userLastMessage
+              : Parser().parse(userLastMessage)}
           </div>
         </div>
       </li>

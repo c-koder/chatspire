@@ -7,9 +7,9 @@ import {
   invalidUsername,
   validEmail,
   validPassword,
-} from "../utils/validations";
+} from "../utils/Validations";
 import PasswordStrengthMeter from "../utils/PasswordStrengthMeter";
-import { pageLoadVariants } from "../utils/animationVariants";
+import { pageLoadVariants } from "../utils/AnimationVariants";
 import { Link } from "react-router-dom";
 
 const UserService = require("../services/UserService");
