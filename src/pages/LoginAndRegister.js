@@ -7,9 +7,9 @@ import {
   invalidUsername,
   validEmail,
   validPassword,
-} from "../utils/Validations";
+} from "../utils/validations";
 import PasswordStrengthMeter from "../utils/PasswordStrengthMeter";
-import { pageLoadVariants } from "../utils/AnimationVariants";
+import { pageLoadVariants } from "../utils/animationVariants";
 import { Link } from "react-router-dom";
 
 const UserService = require("../services/UserService");
@@ -102,7 +102,7 @@ const LoginAndRegister = () => {
 
   /**
    * User login is handled by accumulating the email and password from the user.
-   * Validations are carried to properly ensure the user's login process is a success.
+   * validations are carried to properly ensure the user's login process is a success.
    */
   const handleLogin = (e) => {
     e.preventDefault();

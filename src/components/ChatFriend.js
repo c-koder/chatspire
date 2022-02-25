@@ -1,5 +1,5 @@
 import { Parser } from "html-to-react";
-import { messageContainsEmojis } from "../utils/Validations";
+import { messageContainsEmojis } from "../utils/validations";
 
 const ChatFriend = ({ user, active, setChattingWithUser }) => {
   const handleCurrentChattingUser = () => {

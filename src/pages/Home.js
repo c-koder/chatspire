@@ -3,7 +3,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { onChildChanged, query, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 
-import { pageLoadVariants } from "../utils/AnimationVariants";
+import { pageLoadVariants } from "../utils/animationVariants";
 import ChatContainer from "../components/ChatContainer";
 import ChatFriends from "../components/ChatFriends";
 import { db } from "../firebase-config/config";

@@ -1,6 +1,6 @@
 import { Parser } from "html-to-react";
 import moment from "moment";
-import { messageContainsEmojis } from "../utils/Validations";
+import { messageContainsEmojis } from "../utils/validations";
 
 const Message = ({ message, isUserMessage }) => {
   /**

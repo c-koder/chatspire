@@ -10,7 +10,7 @@ import { onChildChanged, query, ref } from "firebase/database";
 import { AuthContext } from "../helpers/AuthContext";
 import { auth } from "../firebase-config/config";
 import LoginAndRegister from "../pages/LoginAndRegister";
-import { pageLoadVariants } from "../utils/AnimationVariants";
+import { pageLoadVariants } from "../utils/animationVariants";
 import ResetPassword from "../pages/ResetPassword";
 import { db } from "../firebase-config/config";
 
