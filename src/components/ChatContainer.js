@@ -35,7 +35,6 @@ const ChatContainer = ({ chatFriends, chattingWithUser }) => {
   const [isTyping, setIsTyping] = useState(false);
 
   const onEmojiClick = (event, emojiObject) => {
-    console.log(message);
     setMessage(
       message === null ? emojiObject.emoji : message + emojiObject.emoji
     );

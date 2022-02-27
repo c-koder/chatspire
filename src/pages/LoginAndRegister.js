@@ -1,8 +1,7 @@
-import "../styles/login.css";
-import "../styles/loader.css";
-
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+
 import {
   invalidUsername,
   validEmail,
@@ -10,7 +9,8 @@ import {
 } from "../utils/validations";
 import PasswordStrengthMeter from "../utils/PasswordStrengthMeter";
 import { pageLoadVariants } from "../utils/animationVariants";
-import { Link } from "react-router-dom";
+import "../styles/login.css";
+import "../styles/loader.css";
 
 const UserService = require("../services/UserService");
 
@@ -217,7 +217,9 @@ const LoginAndRegister = () => {
             style={{ borderRadius: "5px 5px 0px 0px" }}
           />
           <PasswordStrengthMeter password={registerPassword} />
-          <button onClick={handleRegister}>Register</button>
+          <button onClick={handleRegister} disabled={loading}>
+            Register
+          </button>
         </form>
 
         {loading && (
@@ -264,7 +266,9 @@ const LoginAndRegister = () => {
               Forgot password?
             </Link>{" "}
           </center>
-          <button onClick={handleLogin}>Login</button>
+          <button onClick={handleLogin} disabled={loading}>
+            Login
+          </button>
         </form>
 
         {loading && (

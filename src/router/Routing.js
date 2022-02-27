@@ -5,14 +5,14 @@ import Home from "../pages/Home";
 import logo from "../assets/logo.png";
 import "../styles/loader.css";
 import { motion } from "framer-motion";
-import { onChildChanged, query, ref } from "firebase/database";
 
 import { AuthContext } from "../helpers/AuthContext";
 import { auth } from "../firebase-config/config";
 import LoginAndRegister from "../pages/LoginAndRegister";
 import { pageLoadVariants } from "../utils/animationVariants";
 import ResetPassword from "../pages/ResetPassword";
-import { db } from "../firebase-config/config";
+import ChangeAvatar from "../components/ChangeAvatar";
+import SendFriendRequests from "../components/SendFriendRequests";
 
 const UserService = require("../services/UserService");
 const MessageService = require("../services/MessageService");
@@ -48,7 +48,6 @@ const Routing = () => {
   }, []);
 
   useEffect(() => {
-    // onChildChanged(query(ref(db, "messages/")), (snapshot) => {
     chatFriends.map((friend) =>
       MessageService.getUserLastMessage(friend.id)
         .then((response) => {
@@ -60,7 +59,6 @@ const Routing = () => {
           console.log(err);
         })
     );
-    // });
   }, [chatFriends]);
 
   setTimeout(() => setPending(false), 2000);
@@ -101,7 +99,8 @@ const Routing = () => {
           path="/"
           element={
             currentUser !== null && !pending ? (
-              <Home chatFriends={chatFriends} setChatFriends={setChatFriends} />
+              // <Home chatFriends={chatFriends} setChatFriends={setChatFriends} />
+              <SendFriendRequests />
             ) : (
               <LoginAndRegister />
             )

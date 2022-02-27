@@ -1,5 +1,16 @@
-import { auth, db } from "../firebase-config/config";
-import { ref, get, set, query, orderByChild, equalTo } from "firebase/database";
+import { auth, db, storage } from "../firebase-config/config";
+import {
+  ref,
+  get,
+  set,
+  query,
+  orderByChild,
+  equalTo,
+  update,
+  limitToLast,
+  push,
+  child,
+} from "firebase/database";
 
 import {
   confirmPasswordReset,
@@ -8,6 +19,12 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+import {
+  uploadBytes,
+  ref as storageRef,
+  getDownloadURL,
+} from "firebase/storage";
+import moment from "moment";
 
 /**
  * Used to fetch a user's info.
@@ -33,32 +50,6 @@ const getUser = async (by, value) => {
 };
 
 /**
- * Used to fetch currently logged in user's friends.
- * @returns
- * Based on the current user uid, an array of user objects are returned.
- */
-const getUserFriends = async () => {
-  const fbQuery = query(
-    ref(db, "user_friends/"),
-    orderByChild("user_id"),
-    equalTo(auth.currentUser.uid)
-  );
-
-  return new Promise(async (resolve, reject) => {
-    await get(fbQuery).then(async (snapshot) => {
-      if (snapshot.exists()) {
-        let friends = [];
-        for (let data in snapshot.val()) {
-          const response = await getUser("id", snapshot.val()[data].friend_id);
-          friends.push(response[snapshot.val()[data].friend_id]);
-        }
-        resolve(friends);
-      }
-    });
-  });
-};
-
-/**
  * Registering a user in the database under users child.
  * Firebase's createUserWithEmailAndPassword() authentication method,
  * is used to further ensure a secure registration process.
@@ -78,7 +69,8 @@ const registerUser = async (user) => {
             id: auth.currentUser.uid,
             username: user.username,
             email: user.email,
-            avatar: "",
+            avatar:
+              "https://firebasestorage.googleapis.com/v0/b/chatspire-33b4c.appspot.com/o/profile.png?alt=media&token=eaa85b3e-e186-49d8-ba2b-ce6594d51f7d",
             onlineOrLastSeen: "online",
             lastMessage: "",
             isTyping: false,
@@ -170,6 +162,34 @@ const confirmUserPasswordReset = async (oobCode, newPassword) => {
   });
 };
 
+/**
+ * Used to fetch currently logged in user's friends.
+ * @returns
+ * Based on the current user uid, an array of user objects are returned.
+ */
+const getUserFriends = async () => {
+  const fbQuery = query(
+    ref(db, "user_friends/"),
+    orderByChild("user_id"),
+    equalTo(auth.currentUser.uid)
+  );
+
+  return new Promise(async (resolve, reject) => {
+    await get(fbQuery).then(async (snapshot) => {
+      if (snapshot.exists()) {
+        let friends = [];
+        for (let data in snapshot.val()) {
+          const response = await getUser("id", snapshot.val()[data].friend_id);
+          friends.push(response[snapshot.val()[data].friend_id]);
+        }
+        resolve(friends);
+      } else {
+        resolve(null);
+      }
+    });
+  });
+};
+
 const setUserIsTyping = async (val) => {
   return new Promise(async (resolve, reject) => {
     set(ref(db, `users/${auth.currentUser.uid}/isTyping`), val)
@@ -182,6 +202,118 @@ const setUserIsTyping = async (val) => {
   });
 };
 
+const updateUserAvatar = async (imageFile) => {
+  return new Promise(async (resolve, reject) => {
+    uploadBytes(
+      storageRef(storage, `avatars/${Date.now()}.png`),
+      imageFile
+    ).then((snapshot) => {
+      getDownloadURL(storageRef(storage, snapshot.metadata.fullPath)).then(
+        (url) => {
+          update(ref(db, `users/${auth.currentUser.uid}`), {
+            avatar: url,
+          }).then(() => {
+            resolve("Success");
+          });
+        }
+      );
+    });
+  });
+};
+
+const getUsersToSendRequests = async () => {
+  const fbQuery = query(ref(db, "users/"), limitToLast(50));
+
+  return new Promise(async (resolve, reject) => {
+    await get(fbQuery)
+      .then((snapshot) => {
+        getUserFriends().then((friends) => {
+          let users = [];
+          if (friends !== null) {
+            Object.keys(snapshot.val()).forEach((key) => {
+              !friends.some((friend) => friend.id === key) &&
+                key !== auth.currentUser.uid &&
+                users.push(snapshot.val()[key]);
+            });
+          } else {
+            Object.keys(snapshot.val()).forEach((key, index) => {
+              key !== auth.currentUser.uid && users.push(snapshot.val()[key]);
+            });
+          }
+          resolve(users);
+        });
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const friendRequestExists = async (id) => {
+  const fbQuery = query(
+    ref(db, "friend_requests/"),
+    orderByChild("from_id"),
+    equalTo(auth.currentUser.uid)
+  );
+
+  return new Promise(async (resolve, reject) => {
+    await get(fbQuery)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          for (let data in snapshot.val()) {
+            let item = snapshot.val()[data];
+
+            if (item.friend_id === id) {
+              if (!item.approved) {
+                if (
+                  moment(moment()).diff(
+                    moment(item.date, "YYYY-MM-DD HH:mm:ss"),
+                    "days"
+                  ) >= 3
+                ) {
+                  resolve(false);
+                } else {
+                  resolve(true);
+                }
+              }
+              break;
+            }
+          }
+        } else {
+          resolve(false);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const sendFriendRequest = async (id) => {
+  return new Promise(async (resolve, reject) => {
+    friendRequestExists().then((response) => {
+      if (!response) {
+        const fKey = push(child(ref(db), "friend_requests")).key;
+        set(ref(db, `friend_requests/${fKey}`), {
+          from_id: auth.currentUser.uid,
+          to_id: id,
+          date: moment().format("YYYY-MM-DD HH:mm:ss").toString(),
+          approved: false,
+          approved_date: "",
+        })
+          .then(() => {
+            resolve("success");
+          })
+          .catch((err) => {
+            reject(err.code);
+          });
+      } else {
+        resolve("already_sent");
+      }
+    });
+  });
+};
+
 export {
   getUser,
   getUserFriends,
@@ -190,5 +322,8 @@ export {
   registerUser,
   loginUser,
   logoutUser,
+  updateUserAvatar,
+  getUsersToSendRequests,
+  sendFriendRequest,
   setUserIsTyping,
 };

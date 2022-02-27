@@ -3,22 +3,14 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { onChildChanged, query, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 
+import Settings from "../components/Settings";
 import { pageLoadVariants } from "../utils/animationVariants";
 import ChatContainer from "../components/ChatContainer";
 import ChatFriends from "../components/ChatFriends";
 import { db } from "../firebase-config/config";
 
-const UserService = require("../services/UserService");
-
 const Home = ({ chatFriends, setChatFriends }) => {
   const [chattingWithUser, setChattingWithUser] = useState(null);
-  /**
-   * Handling the logout using the firebase signout function.
-   * In success, results in resetting the chatFriends, Messages, etc.
-   */
-  const handleLogout = () => {
-    UserService.logoutUser();
-  };
 
   /**
    * User online/last seen listener
@@ -85,18 +77,7 @@ const Home = ({ chatFriends, setChatFriends }) => {
                       rows={1}
                     />
                   </div>
-                  <div
-                    className="input-group-prepend"
-                    style={{
-                      position: "absolute",
-                      right: 0,
-                      margin: "17px 0px 0px 0px",
-                    }}
-                  >
-                    <button className="btn shadow-none btn-send" type="button">
-                      <i className="bi bi-gear-fill"></i>
-                    </button>
-                  </div>
+                  <Settings />
                 </div>
                 <ChatFriends
                   chatFriends={chatFriends}

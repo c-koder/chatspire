@@ -54,7 +54,7 @@ const loginUser = async (user) => {
  * @returns
  * Returns a promise that resolves a string if and only if the logout process was a success.
  */
- const logoutUser = async () => {
+const logoutUser = async () => {
   return UserRepository.logoutUser();
 };
 
@@ -90,6 +90,18 @@ const setUserIsTyping = async (val) => {
   return UserRepository.setUserIsTyping(val);
 };
 
+const updateUserAvatar = async (imageFile) => {
+  return UserRepository.updateUserAvatar(imageFile);
+};
+
+const getUsersToSendRequests = async () => {
+  return UserRepository.getUsersToSendRequests();
+};
+
+const sendFriendRequest = async (id) => {
+  return UserRepository.sendFriendRequest(id);
+};
+
 export {
   getUser,
   getUserFriends,
@@ -98,5 +110,8 @@ export {
   loginUser,
   resetUserPassword,
   setUserIsTyping,
+  updateUserAvatar,
+  getUsersToSendRequests,
+  sendFriendRequest,
   logoutUser,
 };

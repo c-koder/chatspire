@@ -61,8 +61,23 @@
   cursor: pointer;
 }
 
+.main button:disabled {
+  background-color: var(--primaryDark);
+  cursor: not-allowed;
+}
+
 .main button:hover {
   background: var(--primaryDark);
+}
+
+.main .invert-btn {
+  color: var(--primary);
+  background-color: var(--lightAccent);
+}
+
+.main .invert-btn:hover {
+  color: var(--lightAccent);
+  background-color: var(--secondaryLight);
 }
 
 .login {
