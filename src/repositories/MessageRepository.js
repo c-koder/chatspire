@@ -6,50 +6,19 @@ import {
   query,
   orderByChild,
   equalTo,
-  limitToLast,
-  startAt,
+  push,
+  child,
+  update,
 } from "firebase/database";
 import CryptoAES from "crypto-js/aes";
 import cryptoJs from "crypto-js";
-
-const getTotalMessageCount = async () => {
-  const fbQuery = query(ref(db, "message_index/"));
-
-  return new Promise(async (resolve, reject) => {
-    await get(fbQuery)
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          resolve(snapshot.val().index);
-        } else {
-          setTotalMessageCount(0);
-          resolve(0);
-        }
-      })
-      .catch((err) => {
-        reject(err.code);
-      });
-  });
-};
-
-const setTotalMessageCount = async (index) => {
-  return new Promise(async (resolve, reject) => {
-    await set(ref(db, `message_index/`), {
-      index: index,
-    })
-      .then(() => {
-        resolve("index_updated");
-      })
-      .catch((err) => {
-        reject(err.code);
-      });
-  });
-};
+import moment from "moment";
 
 const sendMessage = async (message) => {
-  const id = (await getTotalMessageCount()) + 1;
   return new Promise(async (resolve, reject) => {
-    await set(ref(db, `messages/${id}`), {
-      id: id,
+    const mKey = push(child(ref(db), "messages")).key;
+    await set(ref(db, `messages/${mKey}`), {
+      id: mKey,
       sender_id: message.sender_id,
       receiver_id: message.receiver_id,
       context: message.context,
@@ -57,8 +26,7 @@ const sendMessage = async (message) => {
       sent: false,
       timestamp: message.timestamp,
     })
-      .then(async () => {
-        await setTotalMessageCount(id);
+      .then(() => {
         resolve("message_added");
       })
       .catch((err) => {
@@ -73,16 +41,17 @@ const getUserMessages = async () => {
   return new Promise(async (resolve, reject) => {
     await get(fbQuery)
       .then(async (snapshot) => {
-        snapshot.val().forEach((message) => {
-          const decryptedMessage = CryptoAES.decrypt(
-            message.context,
-            "eripstahc"
-          );
-          message.context = decryptedMessage.toString(cryptoJs.enc.Utf8);
+        Object.keys(snapshot.val()).forEach((key) => {
+          let message = snapshot.val()[key];
           if (
             message.sender_id === auth.currentUser.uid ||
             message.receiver_id === auth.currentUser.uid
           ) {
+            const decryptedMessage = CryptoAES.decrypt(
+              message.context,
+              "eripstahc"
+            );
+            message.context = decryptedMessage.toString(cryptoJs.enc.Utf8);
             messages.push(message);
           }
         });
@@ -94,50 +63,67 @@ const getUserMessages = async () => {
   });
 };
 
-const getUserLastMessage = async (sender_id) => {
+const getLastMessageAs = async (key, value) => {
   const fbQuery = query(
     ref(db, "messages/"),
-    orderByChild("receiver_id"),
-    equalTo(sender_id),
-    limitToLast(1)
+    orderByChild(key),
+    equalTo(value)
   );
   return new Promise(async (resolve, reject) => {
-    await get(fbQuery)
-      .then(async (snapshot) => {
-        if (snapshot.exists()) {
-          const snapshotMsg = snapshot.val()[Object.keys(snapshot.val())[0]];
-          const decryptedMessage = CryptoAES.decrypt(
-            snapshotMsg.context,
-            "eripstahc"
+    await get(fbQuery).then((snapshot) => {
+      if (snapshot.exists()) {
+        const keys = Object.keys(snapshot.val());
+        keys.sort(function (left, right) {
+          return moment(snapshot.val()[left].timestamp).diff(
+            moment(snapshot.val()[right].timestamp)
           );
-          snapshotMsg.context = decryptedMessage.toString(cryptoJs.enc.Utf8);
-          resolve(snapshotMsg);
-        } else {
-          const fbQuery = query(
-            ref(db, "messages/"),
-            orderByChild("sender_id"),
-            equalTo(sender_id),
-            limitToLast(1)
-          );
-          await get(fbQuery)
-            .then(async (snapshot) => {
-              if (snapshot.exists()) {
-                const snapshotMsg =
-                  snapshot.val()[Object.keys(snapshot.val())[0]];
-                const decryptedMessage = CryptoAES.decrypt(
-                  snapshotMsg.context,
-                  "eripstahc"
-                );
-                snapshotMsg.context = decryptedMessage.toString(
-                  cryptoJs.enc.Utf8
-                );
-                resolve(snapshotMsg);
-              }
-            })
-            .catch((err) => {
-              reject(err.code);
-            });
-        }
+        });
+        resolve(snapshot.val()[keys[keys.length - 1]]);
+      } else {
+        resolve("");
+      }
+    });
+  });
+};
+
+const getUserLastMessage = async (id) => {
+  let receiverMsg = await getLastMessageAs("receiver_id", id);
+  let senderMsg = await getLastMessageAs("sender_id", id);
+  return new Promise((resolve, reject) => {
+    let latestMessage = "";
+    if (receiverMsg !== "" && senderMsg !== "") {
+      const isReceiverMsgLatest = moment(
+        moment(receiverMsg.timestamp).format("YYYY-MM-DD HH:mm:ss")
+      ).isAfter(moment(senderMsg.timestamp).format("YYYY-MM-DD HH:mm:ss"));
+      latestMessage = isReceiverMsgLatest ? receiverMsg : senderMsg;
+    } else if (receiverMsg !== null) {
+      latestMessage = receiverMsg;
+    } else if (senderMsg !== null) {
+      latestMessage = senderMsg;
+    }
+
+    if (
+      latestMessage.receiver_id === auth.currentUser.uid ||
+      latestMessage.sender_id === auth.currentUser.uid
+    ) {
+      const decryptedMessage = CryptoAES.decrypt(
+        latestMessage.context,
+        "eripstahc"
+      );
+      latestMessage.context = decryptedMessage.toString(cryptoJs.enc.Utf8);
+    }
+    resolve(latestMessage);
+  });
+};
+
+const deleteMessage = async (msg_id) => {
+  return new Promise(async (resolve, reject) => {
+    const encryptedMessage = CryptoAES.encrypt("Message deleted", "eripstahc");
+    await update(ref(db, `messages/${msg_id}`), {
+      context: encryptedMessage.toString(),
+    })
+      .then(() => {
+        resolve("message_deleted");
       })
       .catch((err) => {
         reject(err.code);
@@ -145,4 +131,4 @@ const getUserLastMessage = async (sender_id) => {
   });
 };
 
-export { sendMessage, getUserMessages, getUserLastMessage };
+export { sendMessage, getUserMessages, getUserLastMessage, deleteMessage };

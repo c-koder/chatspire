@@ -1,4 +1,3 @@
-import { Parser } from "html-to-react";
 import { messageContainsEmojis } from "../utils/validations";
 
 const ChatFriend = ({ user, active, setChattingWithUser }) => {
@@ -8,9 +7,9 @@ const ChatFriend = ({ user, active, setChattingWithUser }) => {
 
   let userLastMessage = "";
 
-  if (user.lastMessage !== null || user.lastMessage !== undefined) {
-    if (user.lastMessage.length > 20) {
-      userLastMessage = user.lastMessage.substring(0, 20) + "...";
+  if (user.lastMessage !== null && user.lastMessage !== undefined) {
+    if (user.lastMessage.length > 15) {
+      userLastMessage = user.lastMessage.substring(0, 15) + "...";
     } else {
       userLastMessage = user.lastMessage;
     }
@@ -36,12 +35,7 @@ const ChatFriend = ({ user, active, setChattingWithUser }) => {
         <div className="about">
           <div className="name">{user.username} </div>
           <div className="status">
-            {user.isTyping
-              ? "typing..."
-              : messageContainsEmojis(userLastMessage) &&
-                userLastMessage.length <= 4
-              ? userLastMessage
-              : Parser().parse(userLastMessage)}
+            {userLastMessage === "Message Deleted" ? "" : userLastMessage}
           </div>
         </div>
       </li>

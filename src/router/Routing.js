@@ -7,12 +7,11 @@ import "../styles/loader.css";
 import { motion } from "framer-motion";
 
 import { AuthContext } from "../helpers/AuthContext";
-import { auth } from "../firebase-config/config";
+import { auth, db } from "../firebase-config/config";
 import LoginAndRegister from "../pages/LoginAndRegister";
 import { pageLoadVariants } from "../utils/animationVariants";
 import ResetPassword from "../pages/ResetPassword";
-import ChangeAvatar from "../components/ChangeAvatar";
-import SendFriendRequests from "../components/SendFriendRequests";
+import { onChildAdded, onChildChanged, query, ref } from "firebase/database";
 
 const UserService = require("../services/UserService");
 const MessageService = require("../services/MessageService");
@@ -33,33 +32,50 @@ const Routing = () => {
     auth.onAuthStateChanged((user) => {
       setLoadingText("authorizing...");
       setCurrentUser(user);
-
-      UserService.getUserFriends()
-        .then((response) => {
-          if (response !== null) {
-            setLoadingText("getting users...");
-            setChatFriends(response);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
     });
   }, []);
 
   useEffect(() => {
-    chatFriends.map((friend) =>
-      MessageService.getUserLastMessage(friend.id)
-        .then((response) => {
-          if (response !== null && response !== undefined) {
-            friend.lastMessage = response.context;
+    onChildAdded(query(ref(db, "user_friends/")), (snapshot) => {
+      populateFriends();
+    });
+  }, []);
+
+  useEffect(() => {
+    onChildAdded(query(ref(db, "messages/")), (snapshot) => {
+      populateFriends();
+    });
+  }, []);
+
+  useEffect(() => {
+    onChildChanged(query(ref(db, "messages/")), (snapshot) => {
+      populateFriends();
+    });
+  }, []);
+
+  const populateFriends = () => {
+    UserService.getUserFriends()
+      .then(async (response) => {
+        if (response !== null) {
+          setLoadingText("getting users...");
+          let friends = [];
+          for (let index = 0; index < response.length; index++) {
+            let friend = response[index];
+            let lastMsgResponse = await MessageService.getUserLastMessage(
+              friend.id
+            );
+            friends[index] = {
+              ...friend,
+              lastMessage: lastMsgResponse.context,
+            };
           }
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-    );
-  }, [chatFriends]);
+          setChatFriends(friends);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   setTimeout(() => setPending(false), 2000);
 
@@ -99,9 +115,9 @@ const Routing = () => {
           path="/"
           element={
             currentUser !== null && !pending ? (
-              // <Home chatFriends={chatFriends} setChatFriends={setChatFriends} />
-              <SendFriendRequests />
+              <Home chatFriends={chatFriends} setChatFriends={setChatFriends} />
             ) : (
+              // <SendFriendRequests />
               <LoginAndRegister />
             )
           }

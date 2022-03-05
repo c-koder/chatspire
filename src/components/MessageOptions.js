@@ -1,20 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
-const UserService = require("../services/UserService");
+const MessageService = require("../services/MessageService");
 
-const Settings = ({ setShowPane }) => {
+const MessageSettings = ({ msg_id, isSender }) => {
   const [showSettings, setShowSettings] = useState(false);
   const toggleOpen = () => setShowSettings(!showSettings);
-
-  /**
-   * Handling the logout using the firebase signout function.
-   * In success, results in resetting the chatFriends, Messages, etc.
-   */
-  const handleLogout = (e) => {
-    e.preventDefault();
-    setShowSettings(false);
-    UserService.logoutUser();
-  };
 
   useEffect(() => {
     const close = (e) => {
@@ -41,64 +31,62 @@ const Settings = ({ setShowPane }) => {
     };
   }, [settingsRef]);
 
+  const handleDelete = async () => {
+    await MessageService.deleteMessage(msg_id);
+  };
+
   return (
     <div
-      className="input-group-prepend"
+      ref={settingsRef}
       style={{
         position: "absolute",
+        marginTop: -7,
+        marginRight: -5,
+        top: 0,
         right: 0,
-        margin: "17px 0px 0px 0px",
       }}
-      ref={settingsRef}
     >
       <div className="dropdown">
         <button
-          className="btn shadow-none btn-send"
+          className="btn shadow-none"
           type="button"
           data-bs-toggle="dropdown"
           onClick={toggleOpen}
         >
-          <i className="bi bi-gear-fill"></i>
+          <i
+            className={`bi bi-chevron-down opt ${showSettings && " fixed"}`}
+          ></i>
         </button>
         <div
           className={`dropdown-menu ${showSettings ? "show" : ""}`}
           style={{
-            positionL: "absolute",
+            position: "absolute",
             right: 0,
-            marginRight: 15,
+            marginRight: 5,
             padding: 10,
-            boxShadow: "0 0px 50px 10px rgb(0 0 0 / 2%)",
+            boxShadow: "0 0px 50px 10px rgb(0 0 0 / 3%)",
             border: "none",
+            zIndex: 99,
           }}
         >
           <button className="dropdown-item settings-item">
-            <i className="bi bi-person-fill"></i>Profile
-          </button>
-          <button
-            onClick={(e) => setShowPane("find_friends")}
-            className="dropdown-item settings-item"
-          >
-            <i className="bi bi-person-plus-fill"></i>Find Friends
-          </button>
-          <button
-            onClick={(e) => setShowPane("requests")}
-            className="dropdown-item settings-item"
-          >
-            <i className="bi bi-people-fill"></i>Requests
+            <i className="bi bi-reply-fill"></i>Reply
           </button>
           <button className="dropdown-item settings-item">
-            <i className="bi bi-sliders2"></i>Settings
+            <i className="bi bi-send-plus-fill"></i>Forward
           </button>
-          <button
-            className="dropdown-item settings-item"
-            onClick={handleLogout}
-          >
-            <i className="bi bi-box-arrow-left"></i>Logout
-          </button>
+          {isSender && (
+            <button
+              className="dropdown-item settings-item"
+              onClick={handleDelete}
+            >
+              <i className="bi bi-trash3-fill"></i>Delete
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default Settings;
+export default MessageSettings;

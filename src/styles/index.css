@@ -1,8 +1,8 @@
 @import url("https://fonts.googleapis.com/css?family=Poppins");
 
 :root {
-  --primary: #607b8e;
-  --primaryDark: #3c5263;
+  --primary: #6159c7;
+  --primaryDark: #423ba7;
 
   --secondary: #636362;
   --secondaryLight: #9a9a9a;
@@ -156,7 +156,7 @@ img {
 }
 
 .people-list .status {
-  color: var(--dark);
+  color: var(--primaryDark);
   font-size: 13px;
 }
 
@@ -172,6 +172,7 @@ img {
 }
 
 .chat .chat-header .chat-about {
+  color: var(--primary);
   float: left;
   padding-left: 10px;
 }
@@ -182,7 +183,7 @@ img {
   display: flex;
   flex-direction: column-reverse;
   overflow-y: scroll;
-  margin-bottom: -20px;
+  margin-bottom: 0px;
 }
 
 .chat .chat-history ul {
@@ -192,11 +193,7 @@ img {
 .chat .chat-history ul li {
   display: block;
   list-style: none;
-  margin-bottom: 5px;
-}
-
-.chat .chat-history .message-data {
-  margin-bottom: 15px;
+  margin-bottom: 4px;
 }
 
 .chat .chat-history .message-data img {
@@ -206,29 +203,28 @@ img {
 
 .chat .chat-history .message-data-time {
   color: var(--dark);
-  font-size: 12px;
-  float: right;
-  text-align: right;
-  padding-left: 4px;
-  padding-right: 4px;
-  padding-top: 2px;
+  font-size: 11px;
+  margin-left: 5px;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .chat .chat-history .message {
-  min-width: 90px;
-  max-width: 320px;
+  min-width: 60px;
+  max-width: 350px;
   color: var(--dark);
-  padding: 3px 10px;
-  line-height: 26px;
+  padding: 3px 12px 0px 12px;
+  line-height: 25px;
+  white-space: pre-line;
   font-size: 16px;
   font-weight: 400;
-  border-radius: 12px 12px;
+  border-radius: 10px 10px;
   display: inline-block;
   position: relative;
 }
 
 .chat .chat-history .message p {
-  margin-bottom: -4px;
+  margin-bottom: -6px;
 }
 
 .chat .chat-history .my-message {
@@ -236,6 +232,46 @@ img {
   background: var(--primary);
   color: var(--light);
   text-align: right;
+}
+
+.chat .chat-history .my-message a {
+  text-decoration: none;
+  color: var(--light);
+}
+
+.chat .chat-history .my-message a:hover {
+  text-decoration: underline;
+  color: var(--lightAccent);
+}
+
+.chat .chat-history .message .opt {
+  opacity: 0;
+  font-size: 10px;
+}
+
+.chat .chat-history .message .opt.fixed {
+  opacity: 1;
+  font-size: 20px;
+}
+
+.chat .chat-history .message:hover .opt {
+  transition: all 0.15s ease-in-out;
+  opacity: 1;
+  font-size: 20px;
+}
+
+.chat .chat-history .my-message .opt {
+  color: var(--light);
+  background: linear-gradient(to left, var(--primary), rgba(96, 89, 199, 0.6));
+}
+
+.chat .chat-history .other-message .opt {
+  color: var(--dark);
+  background: linear-gradient(
+    to left,
+    var(--lightAccent),
+    rgba(231, 231, 231, 0.6)
+  );
 }
 
 .chat .chat-history .my-message .message-data-time {
@@ -248,8 +284,14 @@ img {
   text-align: left;
 }
 
-.chat .chat-history .other-message .message-data-time {
-  float: left;
+.chat .chat-history .other-message a {
+  text-decoration: none;
+  color: var(--primary);
+}
+
+.chat .chat-history .other-message a:hover {
+  text-decoration: underline;
+  color: var(--primaryDark);
 }
 
 .chat .chat-message {
@@ -283,7 +325,6 @@ img {
 }
 
 .message-outer-box {
-  /* border: 1px solid var(--lightAccent); */
   border-radius: 5px;
   background-color: white;
   padding: 8px 0px 6px 10px;
@@ -304,22 +345,8 @@ img {
 .message-box.txtarea {
   border: none;
   outline: none;
-  margin: 0px 8px 0px 0px;
-}
-
-.ql-editor {
-  overflow-y: scroll;
-  resize: none;
-  font-size: 16px;
-  max-height: 50px;
-  height: 50px;
-}
-
-.quill .ql-container {
-  margin-top: -5px;
-  background: transparent;
-  max-height: 50px;
-  height: 50px;
+  padding-top: 7px;
+  margin: 0px;
 }
 
 .btn-send {
@@ -334,6 +361,14 @@ img {
 
 .btn-send:hover {
   color: var(--primaryDark);
+}
+
+.lbl-date {
+  background-color: var(--primaryDark);
+  padding: 3px 6px;
+  border-radius: 5px;
+  color: white;
+  font-size: 13px;
 }
 
 .clearfix:after {
@@ -411,6 +446,13 @@ img {
     height: calc(100vh - 350px);
     overflow-x: auto;
   }
+}
+
+.right-pane {
+  height: 72.5vh;
+  border: none;
+  position: relative;
+  background-color: var(--light);
 }
 
 .btn-main {

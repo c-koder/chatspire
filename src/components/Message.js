@@ -1,6 +1,9 @@
-import { Parser } from "html-to-react";
 import moment from "moment";
+import Linkify from "react-linkify/dist/components/Linkify";
+import { useContext } from "react";
+import { AuthContext } from "../helpers/AuthContext";
 import { messageContainsEmojis } from "../utils/validations";
+import MessageSettings from "./MessageOptions";
 
 const Message = ({ message, isUserMessage }) => {
   /**
@@ -8,8 +11,11 @@ const Message = ({ message, isUserMessage }) => {
    * Which results in displaying only the hours and minutes with AM or PM,
    * of the delivered/received message.
    */
+  const { currentUser } = useContext(AuthContext);
+
+  const context = message.context;
   const convertedTime = moment(message.timestamp).format("hh:mm A");
-  const isEmojiMessage = message.context.replace(/<[^>]*>/g, "");
+  const isEmojiMessage = context.replace(/<[^>]*>/g, "");
   return (
     <li className="clearfix">
       <div
@@ -29,10 +35,42 @@ const Message = ({ message, isUserMessage }) => {
             "10px 10px",
         }}
       >
-        {messageContainsEmojis(isEmojiMessage) && isEmojiMessage.length <= 4
-          ? isEmojiMessage
-          : Parser().parse(message.context)}
-        <span className="message-data-time"> {convertedTime}</span>
+        {context !== "Message deleted" && (
+          <MessageSettings
+            isSender={message.sender_id === currentUser.uid}
+            msg_id={message.id}
+          />
+        )}
+
+        {messageContainsEmojis(isEmojiMessage) && isEmojiMessage.length <= 4 ? (
+          isEmojiMessage
+        ) : (
+          <Linkify>
+            <span
+              style={{
+                fontStyle: context === "Message deleted" && "italic",
+                opacity: context === "Message deleted" && 0.8,
+              }}
+            >
+              {context === "Message deleted" && (
+                <i class="bi bi-slash-circle"> </i>
+              )}
+              {context}
+            </span>
+          </Linkify>
+        )}
+
+        {context.includes("\n") && <br />}
+
+        <span
+          className="message-data-time"
+          style={{
+            marginLeft: context.includes("\n") && "0px",
+            opacity: context === "Message deleted" && 0.8,
+          }}
+        >
+          {convertedTime}
+        </span>
       </div>
     </li>
   );

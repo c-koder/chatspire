@@ -12,4 +12,8 @@ const getUserLastMessage = async (sender_id) => {
   return MessageRepository.getUserLastMessage(sender_id);
 };
 
-export { sendMessage, getUserMessages, getUserLastMessage };
+const deleteMessage = async (msg_id) => {
+  return MessageRepository.deleteMessage(msg_id);
+};
+
+export { sendMessage, getUserMessages, getUserLastMessage,deleteMessage };

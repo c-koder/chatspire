@@ -19,7 +19,9 @@ const SendRequestTo = ({ chatFriend }) => {
     <li className="clearfix">
       <img src={chatFriend.avatar} alt="avatar" />
       <div className="about" style={{ display: "flex" }}>
-        <div className="name">{chatFriend.username} </div>
+        <div className="name" style={{ margin: "10px 0px 10px 5px" }}>
+          {chatFriend.username}
+        </div>
         <button
           style={{
             position: "absolute",

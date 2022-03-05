@@ -73,7 +73,6 @@ const registerUser = async (user) => {
               "https://firebasestorage.googleapis.com/v0/b/chatspire-33b4c.appspot.com/o/profile.png?alt=media&token=eaa85b3e-e186-49d8-ba2b-ce6594d51f7d",
             onlineOrLastSeen: "online",
             lastMessage: "",
-            isTyping: false,
           }).then(() => {
             resolve("Success");
           });
@@ -190,18 +189,6 @@ const getUserFriends = async () => {
   });
 };
 
-const setUserIsTyping = async (val) => {
-  return new Promise(async (resolve, reject) => {
-    set(ref(db, `users/${auth.currentUser.uid}/isTyping`), val)
-      .then(() => {
-        resolve("success");
-      })
-      .catch((err) => {
-        reject(err.code);
-      });
-  });
-};
-
 const updateUserAvatar = async (imageFile) => {
   return new Promise(async (resolve, reject) => {
     uploadBytes(
@@ -227,17 +214,31 @@ const getUsersToSendRequests = async () => {
   return new Promise(async (resolve, reject) => {
     await get(fbQuery)
       .then((snapshot) => {
-        getUserFriends().then((friends) => {
+        getUserFriends().then(async (friends) => {
           let users = [];
+          let friendRequests = await fetchFriendRequests();
           if (friends !== null) {
             Object.keys(snapshot.val()).forEach((key) => {
-              !friends.some((friend) => friend.id === key) &&
-                key !== auth.currentUser.uid &&
-                users.push(snapshot.val()[key]);
+              if (friendRequests !== null) {
+                !friendRequests.some((request) => request.id === key) &&
+                  !friends.some((friend) => friend.id === key) &&
+                  key !== auth.currentUser.uid &&
+                  users.push(snapshot.val()[key]);
+              } else {
+                !friends.some((friend) => friend.id === key) &&
+                  key !== auth.currentUser.uid &&
+                  users.push(snapshot.val()[key]);
+              }
             });
           } else {
-            Object.keys(snapshot.val()).forEach((key, index) => {
-              key !== auth.currentUser.uid && users.push(snapshot.val()[key]);
+            Object.keys(snapshot.val()).forEach(async (key, index) => {
+              if (friendRequests !== null) {
+                !friendRequests.some((request) => request.id === key) &&
+                  key !== auth.currentUser.uid &&
+                  users.push(snapshot.val()[key]);
+              } else {
+                key !== auth.currentUser.uid && users.push(snapshot.val()[key]);
+              }
             });
           }
           resolve(users);
@@ -262,8 +263,7 @@ const friendRequestExists = async (id) => {
         if (snapshot.exists()) {
           for (let data in snapshot.val()) {
             let item = snapshot.val()[data];
-
-            if (item.friend_id === id) {
+            if (item.to_id === id) {
               if (!item.approved) {
                 if (
                   moment(moment()).diff(
@@ -279,6 +279,7 @@ const friendRequestExists = async (id) => {
               break;
             }
           }
+          resolve(false);
         } else {
           resolve(false);
         }
@@ -291,15 +292,16 @@ const friendRequestExists = async (id) => {
 
 const sendFriendRequest = async (id) => {
   return new Promise(async (resolve, reject) => {
-    friendRequestExists().then((response) => {
+    friendRequestExists(id).then((response) => {
       if (!response) {
         const fKey = push(child(ref(db), "friend_requests")).key;
         set(ref(db, `friend_requests/${fKey}`), {
+          id: fKey,
           from_id: auth.currentUser.uid,
           to_id: id,
           date: moment().format("YYYY-MM-DD HH:mm:ss").toString(),
           approved: false,
-          approved_date: "",
+          approved_or_declined_date: "",
         })
           .then(() => {
             resolve("success");
@@ -314,6 +316,88 @@ const sendFriendRequest = async (id) => {
   });
 };
 
+const fetchFriendRequests = async () => {
+  const fbQuery = query(
+    ref(db, "friend_requests/"),
+    orderByChild("to_id"),
+    equalTo(auth.currentUser.uid)
+  );
+
+  return new Promise(async (resolve, reject) => {
+    await get(fbQuery).then(async (snapshot) => {
+      if (snapshot.exists()) {
+        let requests = [];
+        for (let key in snapshot.val()) {
+          if (
+            !snapshot.val()[key].approved &&
+            snapshot.val()[key].approved_or_declined_date === ""
+          ) {
+            const response = await getUser("id", snapshot.val()[key].from_id);
+            const request = {
+              request_id: key,
+              id: response[snapshot.val()[key].from_id].id,
+              username: response[snapshot.val()[key].from_id].username,
+              avatar: response[snapshot.val()[key].from_id].avatar,
+            };
+            requests.push(request);
+          }
+        }
+        resolve(requests);
+      } else {
+        resolve(null);
+      }
+    });
+  });
+};
+
+const acceptFriendRequest = async (id, friend_id) => {
+  return new Promise(async (resolve, reject) => {
+    const uKey = push(child(ref(db), "user_friends")).key;
+    set(ref(db, `user_friends/${uKey}`), {
+      id: uKey,
+      user_id: auth.currentUser.uid,
+      friend_id: friend_id,
+    }).then(() => {
+      const uKey2 = push(child(ref(db), "user_friends")).key;
+      set(ref(db, `user_friends/${uKey2}`), {
+        id: uKey,
+        friend_id: auth.currentUser.uid,
+        user_id: friend_id,
+      }).then(() => {
+        update(ref(db, `friend_requests/${id}`), {
+          approved: true,
+          approved_or_declined_date: moment()
+            .format("YYYY-MM-DD HH:mm:ss")
+            .toString(),
+        })
+          .then(() => {
+            resolve("success");
+          })
+          .catch((err) => {
+            reject(err.code);
+          });
+      });
+    });
+  });
+};
+
+const declineFriendRequest = async (id) => {
+  return new Promise(async (resolve, reject) => {
+    update(ref(db, `friend_requests/${id}`), {
+      approved: false,
+      approved_or_declined_date: moment()
+        .format("YYYY-MM-DD HH:mm:ss")
+        .toString(),
+    })
+      .then(() => {
+        resolve("success");
+      })
+      .catch((err) => {
+        reject(err.code);
+      });
+  });
+};
+
 export {
   getUser,
   getUserFriends,
@@ -325,5 +409,7 @@ export {
   updateUserAvatar,
   getUsersToSendRequests,
   sendFriendRequest,
-  setUserIsTyping,
+  fetchFriendRequests,
+  acceptFriendRequest,
+  declineFriendRequest,
 };

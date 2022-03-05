@@ -11,7 +11,7 @@ import { db } from "../firebase-config/config";
 
 const Home = ({ chatFriends, setChatFriends }) => {
   const [chattingWithUser, setChattingWithUser] = useState(null);
-
+  const [showPane, setShowPane] = useState("")
   /**
    * User online/last seen listener
    * Dependencies are not really required - used to clear out some warnings
@@ -44,6 +44,7 @@ const Home = ({ chatFriends, setChatFriends }) => {
                 <ChatContainer
                   chatFriends={chatFriends}
                   chattingWithUser={chattingWithUser}
+                  showPane={showPane}
                 />
               </div>
               <div id="plist" className="people-list">
@@ -77,7 +78,7 @@ const Home = ({ chatFriends, setChatFriends }) => {
                       rows={1}
                     />
                   </div>
-                  <Settings />
+                  <Settings setShowPane={setShowPane} />
                 </div>
                 <ChatFriends
                   chatFriends={chatFriends}

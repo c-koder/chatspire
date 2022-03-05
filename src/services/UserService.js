@@ -102,6 +102,18 @@ const sendFriendRequest = async (id) => {
   return UserRepository.sendFriendRequest(id);
 };
 
+const fetchFriendRequests = async () => {
+  return UserRepository.fetchFriendRequests();
+};
+
+const acceptFriendRequest = async (id, friend_id) => {
+  return UserRepository.acceptFriendRequest(id, friend_id);
+};
+
+const declineFriendRequest = async (id) => {
+  return UserRepository.declineFriendRequest(id);
+};
+
 export {
   getUser,
   getUserFriends,
@@ -113,5 +125,8 @@ export {
   updateUserAvatar,
   getUsersToSendRequests,
   sendFriendRequest,
+  fetchFriendRequests,
+  acceptFriendRequest,
+  declineFriendRequest,
   logoutUser,
 };
