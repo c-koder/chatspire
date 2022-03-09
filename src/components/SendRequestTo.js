@@ -1,18 +1,7 @@
-import { useState } from "react";
-
-const SendRequestTo = ({ chatFriend }) => {
-  const UserService = require("../services/UserService");
-
-  const [btnMessage, setBtnMessage] = useState("Send Request");
-
-  const handleSendRequest = (id) => {
-    UserService.sendFriendRequest(id).then((response) => {
-      if (response === "success") {
-        setBtnMessage("Request Sent");
-      } else if (response === "already_sent") {
-        setBtnMessage("Request Pending");
-      }
-    });
+const SendRequestTo = ({ chatFriend, setShowPane, setFindingFriends }) => {
+  const showProfile = (id) => {
+    setShowPane("profile");
+    setFindingFriends({ id: id, viewing_friend: true, friend_request: false });
   };
 
   return (
@@ -31,13 +20,11 @@ const SendRequestTo = ({ chatFriend }) => {
             height: 40,
             marginTop: 5,
             marginRight: 40,
+            zIndex: 99,
           }}
-          disabled={
-            btnMessage === "Request Sent" || btnMessage === "Request Pending"
-          }
-          onClick={(e) => handleSendRequest(chatFriend.id)}
+          onClick={(e) => showProfile(chatFriend.id)}
         >
-          {btnMessage}
+          View
         </button>
       </div>
     </li>

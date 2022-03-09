@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import "../styles/login.css";
 import "../styles/loader.css";
-import { pageLoadVariants } from "../utils/animationVariants";
+import { errVariants, pageLoadVariants } from "../utils/animationVariants";
 import SendFriendRequests from "./SendFriendRequests";
 
 const UserService = require("../services/UserService");
@@ -58,23 +58,6 @@ const ChangeAvatar = () => {
       setSelectedImage(e.target.files[0]);
       setSelectedImageAsUrl(URL.createObjectURL(e.target.files[0]));
     }
-  };
-
-  const errVariants = {
-    hidden: {
-      visibility: "hidden",
-      opacity: 0,
-      x: -20,
-    },
-    visible: {
-      visibility: "visible",
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.5 },
-    },
-    exit: {
-      transition: { ease: "easeIn" },
-    },
   };
 
   useEffect(() => {

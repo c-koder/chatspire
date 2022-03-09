@@ -8,7 +8,7 @@ import FriendRequest from "./FriendRequest";
 
 const UserService = require("../services/UserService");
 
-const FriendRequests = () => {
+const FriendRequests = ({ setShowPane, setFindingFriends }) => {
   const [requests, setRequests] = useState([]);
 
   useEffect(() => {
@@ -48,6 +48,8 @@ const FriendRequests = () => {
                 key={request.id}
                 request={request}
                 handleDelete={handleDelete}
+                setShowPane={setShowPane}
+                setFindingFriends={setFindingFriends}
               />
             );
           })}

@@ -11,6 +11,23 @@ export const pageLoadVariants = {
   },
 };
 
+export const errVariants = {
+  hidden: {
+    visibility: "hidden",
+    opacity: 0,
+    x: -20,
+  },
+  visible: {
+    visibility: "visible",
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.5 },
+  },
+  exit: {
+    transition: { ease: "easeIn" },
+  },
+};
+
 export const pageLoadVariants2 = {
   hidden: {
     opacity: 0,

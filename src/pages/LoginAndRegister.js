@@ -8,7 +8,7 @@ import {
   validPassword,
 } from "../utils/validations";
 import PasswordStrengthMeter from "../utils/PasswordStrengthMeter";
-import { pageLoadVariants } from "../utils/animationVariants";
+import { errVariants, pageLoadVariants } from "../utils/animationVariants";
 import "../styles/login.css";
 import "../styles/loader.css";
 
@@ -141,23 +141,6 @@ const LoginAndRegister = () => {
           setLoading(false);
         });
     }
-  };
-
-  const errVariants = {
-    hidden: {
-      visibility: "hidden",
-      opacity: 0,
-      x: -20,
-    },
-    visible: {
-      visibility: "visible",
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.5 },
-    },
-    exit: {
-      transition: { ease: "easeIn" },
-    },
   };
 
   /**

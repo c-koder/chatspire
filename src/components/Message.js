@@ -53,7 +53,7 @@ const Message = ({ message, isUserMessage }) => {
               }}
             >
               {context === "Message deleted" && (
-                <i class="bi bi-slash-circle"> </i>
+                <i className="bi bi-slash-circle"> </i>
               )}
               {context}
             </span>

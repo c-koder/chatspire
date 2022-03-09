@@ -69,9 +69,17 @@ const registerUser = async (user) => {
             id: auth.currentUser.uid,
             username: user.username,
             email: user.email,
+            email_visibility: true,
             avatar:
-              "https://firebasestorage.googleapis.com/v0/b/chatspire-33b4c.appspot.com/o/profile.png?alt=media&token=eaa85b3e-e186-49d8-ba2b-ce6594d51f7d",
+              "https://firebasestorage.googleapis.com/v0/b/chatspire-33b4c.appspot.com/o/profile.png?alt=media&token=bb1e4187-c421-4310-867c-562655425bc3",
             onlineOrLastSeen: "online",
+            score: 0,
+            bio: `Hey, I'm ${user.username}`,
+            facebook: "",
+            instagram: "",
+            twitter: "",
+            linkedin: "",
+            joined_date: moment().format("YYYY-MM-DD HH:mm:ss").toString(),
             lastMessage: "",
           }).then(() => {
             resolve("Success");
@@ -191,20 +199,24 @@ const getUserFriends = async () => {
 
 const updateUserAvatar = async (imageFile) => {
   return new Promise(async (resolve, reject) => {
-    uploadBytes(
-      storageRef(storage, `avatars/${Date.now()}.png`),
-      imageFile
-    ).then((snapshot) => {
-      getDownloadURL(storageRef(storage, snapshot.metadata.fullPath)).then(
-        (url) => {
-          update(ref(db, `users/${auth.currentUser.uid}`), {
-            avatar: url,
-          }).then(() => {
-            resolve("Success");
-          });
-        }
-      );
-    });
+    if (imageFile !== null && imageFile !== undefined && imageFile !== "") {
+      uploadBytes(
+        storageRef(storage, `avatars/${Date.now()}.png`),
+        imageFile
+      ).then((snapshot) => {
+        getDownloadURL(storageRef(storage, snapshot.metadata.fullPath)).then(
+          (url) => {
+            update(ref(db, `users/${auth.currentUser.uid}`), {
+              avatar: url,
+            }).then(() => {
+              resolve("success");
+            });
+          }
+        );
+      });
+    } else {
+      resolve("image_not_valid");
+    }
   });
 };
 
@@ -398,6 +410,32 @@ const declineFriendRequest = async (id) => {
   });
 };
 
+const updateUser = async (
+  avatar,
+  username,
+  bio,
+  email_visibility,
+  twitter,
+  facebook,
+  instagram,
+  linkedin
+) => {
+  return new Promise(async (resolve, reject) => {
+    await updateUserAvatar(avatar);
+    await update(ref(db, `users/${auth.currentUser.uid}`), {
+      username: username,
+      bio: bio === "" ? `Hey, I'm ${username}` : bio,
+      email_visibility: email_visibility,
+      twitter: twitter,
+      facebook: facebook,
+      instagram: instagram,
+      linkedin: linkedin,
+    }).then(() => {
+      resolve("Success");
+    });
+  });
+};
+
 export {
   getUser,
   getUserFriends,
@@ -412,4 +450,5 @@ export {
   fetchFriendRequests,
   acceptFriendRequest,
   declineFriendRequest,
+  updateUser,
 };

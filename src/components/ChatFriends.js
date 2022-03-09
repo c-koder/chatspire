@@ -4,6 +4,7 @@ const ChatFriends = ({
   chatFriends,
   chattingWithUser,
   setChattingWithUser,
+  setShowPane,
 }) => {
   return (
     <div style={{ marginTop: 80 }}>
@@ -17,6 +18,7 @@ const ChatFriends = ({
                 chattingWithUser !== null &&
                 chatFriend.id === chattingWithUser.id
               }
+              setShowPane={setShowPane}
               setChattingWithUser={setChattingWithUser}
             />
           );

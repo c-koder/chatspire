@@ -1,21 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { auth } from "../firebase-config/config";
 
-const UserService = require("../services/UserService");
-
-const Settings = ({ setShowPane, setFindingFriends }) => {
+const VisibilitySettings = ({ setEmailVisibility, emailVisibility }) => {
   const [showSettings, setShowSettings] = useState(false);
   const toggleOpen = () => setShowSettings(!showSettings);
-
-  /**
-   * Handling the logout using the firebase signout function.
-   * In success, results in resetting the chatFriends, Messages, etc.
-   */
-  const handleLogout = (e) => {
-    e.preventDefault();
-    setShowSettings(false);
-    UserService.logoutUser();
-  };
 
   useEffect(() => {
     const close = (e) => {
@@ -48,9 +35,7 @@ const Settings = ({ setShowPane, setFindingFriends }) => {
     <div
       className="input-group-prepend"
       style={{
-        position: "absolute",
-        right: 0,
-        margin: "17px 0px 0px 0px",
+        margin: "-9px 0px 0px -7px",
       }}
     >
       <div className="dropdown">
@@ -61,7 +46,9 @@ const Settings = ({ setShowPane, setFindingFriends }) => {
           onClick={toggleOpen}
           ref={settingsRef}
         >
-          <i className="bi bi-gear-fill"></i>
+          <i
+            className={emailVisibility ? "bi bi-globe2" : "bi bi-lock-fill"}
+          ></i>
         </button>
         <div
           className={`dropdown-menu ${showSettings ? "show" : ""}`}
@@ -76,33 +63,15 @@ const Settings = ({ setShowPane, setFindingFriends }) => {
         >
           <button
             className="dropdown-item settings-item"
-            onClick={(e) => {
-              setShowPane("profile");
-              setFindingFriends({ id: auth.currentUser.uid, value: false });
-            }}
+            onClick={(e) => setEmailVisibility(true)}
           >
-            <i className="bi bi-person-fill"></i>Profile
-          </button>
-          <button
-            onClick={(e) => setShowPane("find_friends")}
-            className="dropdown-item settings-item"
-          >
-            <i className="bi bi-person-plus-fill"></i>Find Friends
-          </button>
-          <button
-            onClick={(e) => setShowPane("requests")}
-            className="dropdown-item settings-item"
-          >
-            <i className="bi bi-people-fill"></i>Requests
-          </button>
-          <button className="dropdown-item settings-item">
-            <i className="bi bi-sliders2"></i>Settings
+            <i className="bi bi-globe2"></i>Public
           </button>
           <button
             className="dropdown-item settings-item"
-            onClick={handleLogout}
+            onClick={(e) => setEmailVisibility(false)}
           >
-            <i className="bi bi-box-arrow-left"></i>Logout
+            <i className="bi bi-lock-fill"></i>Only Me
           </button>
         </div>
       </div>
@@ -110,4 +79,4 @@ const Settings = ({ setShowPane, setFindingFriends }) => {
   );
 };
 
-export default Settings;
+export default VisibilitySettings;

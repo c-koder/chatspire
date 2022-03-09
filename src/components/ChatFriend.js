@@ -1,8 +1,9 @@
 import { messageContainsEmojis } from "../utils/validations";
 
-const ChatFriend = ({ user, active, setChattingWithUser }) => {
+const ChatFriend = ({ user, active, setChattingWithUser, setShowPane }) => {
   const handleCurrentChattingUser = () => {
     setChattingWithUser(user);
+    setShowPane("messages");
   };
 
   let userLastMessage = "";

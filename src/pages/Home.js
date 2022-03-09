@@ -7,11 +7,17 @@ import Settings from "../components/Settings";
 import { pageLoadVariants } from "../utils/animationVariants";
 import ChatContainer from "../components/ChatContainer";
 import ChatFriends from "../components/ChatFriends";
-import { db } from "../firebase-config/config";
+import { auth, db } from "../firebase-config/config";
 
 const Home = ({ chatFriends, setChatFriends }) => {
   const [chattingWithUser, setChattingWithUser] = useState(null);
-  const [showPane, setShowPane] = useState("")
+  const [showPane, setShowPane] = useState("");
+  const [isFindingFriends, setFindingFriends] = useState({
+    id: auth.currentUser.uid,
+    viewing_friend: false,
+    friend_request: false,
+  });
+
   /**
    * User online/last seen listener
    * Dependencies are not really required - used to clear out some warnings
@@ -39,12 +45,15 @@ const Home = ({ chatFriends, setChatFriends }) => {
       <div className="container">
         <div className="clearfix">
           <div className="col-lg-12">
-            <div className="card chat-app">
+            <div className="box-card chat-app">
               <div className="chat">
                 <ChatContainer
                   chatFriends={chatFriends}
                   chattingWithUser={chattingWithUser}
                   showPane={showPane}
+                  setShowPane={setShowPane}
+                  isFindingFriends={isFindingFriends}
+                  setFindingFriends={setFindingFriends}
                 />
               </div>
               <div id="plist" className="people-list">
@@ -78,12 +87,16 @@ const Home = ({ chatFriends, setChatFriends }) => {
                       rows={1}
                     />
                   </div>
-                  <Settings setShowPane={setShowPane} />
+                  <Settings
+                    setShowPane={setShowPane}
+                    setFindingFriends={setFindingFriends}
+                  />
                 </div>
                 <ChatFriends
                   chatFriends={chatFriends}
                   chattingWithUser={chattingWithUser}
                   setChattingWithUser={setChattingWithUser}
+                  setShowPane={setShowPane}
                 />
               </div>
             </div>

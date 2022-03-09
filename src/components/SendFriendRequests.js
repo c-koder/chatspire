@@ -3,15 +3,12 @@ import { useEffect, useState } from "react";
 
 import "../styles/login.css";
 import "../styles/loader.css";
-import {
-  pageLoadVariants,
-  pageLoadVariants2,
-} from "../utils/animationVariants";
+import { pageLoadVariants2 } from "../utils/animationVariants";
 import SendRequestTo from "./SendRequestTo";
 
 const UserService = require("../services/UserService");
 
-const SendFriendRequests = () => {
+const SendFriendRequests = ({ setShowPane, setFindingFriends }) => {
   const [chatFriends, setChatFriends] = useState([]);
 
   useEffect(() => {
@@ -43,7 +40,12 @@ const SendFriendRequests = () => {
         <ul className="list-unstyled chat-list mt-2 mb-0">
           {chatFriends.map((chatFriend) => {
             return (
-              <SendRequestTo key={chatFriend.id} chatFriend={chatFriend} />
+              <SendRequestTo
+                key={chatFriend.id}
+                chatFriend={chatFriend}
+                setShowPane={setShowPane}
+                setFindingFriends={setFindingFriends}
+              />
             );
           })}
         </ul>

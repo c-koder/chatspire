@@ -10,10 +10,18 @@ import moment from "moment";
 import { auth, db } from "../firebase-config/config";
 import FriendRequests from "./FriendRequests";
 import SendFriendRequests from "./SendFriendRequests";
+import Profile from "./Profile";
 
 const MessageService = require("../services/MessageService");
 
-const ChatContainer = ({ chatFriends, chattingWithUser, showPane }) => {
+const ChatContainer = ({
+  chatFriends,
+  chattingWithUser,
+  showPane,
+  setShowPane,
+  isFindingFriends,
+  setFindingFriends,
+}) => {
   const emojiRef = useRef(null);
 
   const [showEmojis, setShowEmojis] = useState(false);
@@ -100,148 +108,158 @@ const ChatContainer = ({ chatFriends, chattingWithUser, showPane }) => {
     }
   };
 
-  if (showPane === "requests") {
+  if (showPane === "messages") {
+    return (
+      <div>
+        <div className="chat-header clearfix">
+          <div className="row">
+            <div className="col-lg-6">
+              <img src={chattingWithUser.avatar} alt="avatar" />
+              <div className="chat-about">
+                <h6 className="mb-0" style={{ fontWeight: "bold" }}>
+                  {chattingWithUser.username}
+                </h6>
+                <div className="status">
+                  <small>
+                    <i
+                      className={
+                        chattingWithUser.onlineOrLastSeen === "online"
+                          ? "fa fa-circle online"
+                          : "fa fa-circle offline"
+                      }
+                    ></i>
+                    <span>
+                      {chattingWithUser.onlineOrLastSeen !== "online"
+                        ? " " +
+                          moment(chattingWithUser.onlineOrLastSeen)
+                            .local()
+                            .fromNow()
+                        : " online"}
+                    </span>
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Messages
+          messages={messages}
+          chatFriend={chatFriends}
+          chattingWithUser={chattingWithUser}
+        />
+
+        <div className="chat-message clearfix">
+          <div className="input-group mb-0">
+            <div ref={emojiRef} className="input-group-prepend">
+              <button
+                className="btn shadow-none btn-send"
+                type="button"
+                onClick={() => setShowEmojis((oldState) => !oldState)}
+              >
+                <i className="bi bi-emoji-smile"></i>
+              </button>
+              {showEmojis && (
+                <div
+                  style={{
+                    position: "absolute",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                    bottom: "58px",
+                  }}
+                >
+                  <Picker
+                    onEmojiClick={onEmojiClick}
+                    disableAutoFocus={true}
+                    groupVisibility={{
+                      animals_nature: false,
+                      objects: false,
+                      flags: false,
+                    }}
+                    native={true}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="input-group-prepend">
+              <button className="btn shadow-none btn-send" type="button">
+                <i className="fa fa-paperclip"></i>
+              </button>
+            </div>
+            <textarea
+              ref={(msgBox) => setMessageBox(msgBox)}
+              className="form-control shadow-none message-box txtarea"
+              placeholder="Type your message..."
+              value={message || ""}
+              onChange={(e) => {
+                setMessage(e.target.value);
+              }}
+              onKeyPress={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
+              style={{ fontSize: 16 }}
+              rows={1}
+            />
+            <div className="input-group-prepend" style={{ marginRight: "8px" }}>
+              <button
+                className="btn shadow-none btn-send float-right"
+                type="button"
+                onClick={handleSendMessage}
+              >
+                <i className="fa fa-send"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  } else if (showPane === "requests") {
     return (
       <div className="right-pane">
-        <FriendRequests />
+        <FriendRequests
+          setShowPane={setShowPane}
+          setFindingFriends={setFindingFriends}
+        />
       </div>
     );
   } else if (showPane === "find_friends") {
     return (
       <div className="right-pane">
-        <SendFriendRequests />
+        <SendFriendRequests
+          setShowPane={setShowPane}
+          setFindingFriends={setFindingFriends}
+        />
+      </div>
+    );
+  } else if (showPane === "profile") {
+    return (
+      <div className="right-pane">
+        <Profile
+          setShowPane={setShowPane}
+          isFindingFriends={isFindingFriends}
+        />
       </div>
     );
   } else {
     return (
-      <>
-        {chattingWithUser !== null ? (
-          <div>
-            <div className="chat-header clearfix">
-              <div className="row">
-                <div className="col-lg-6">
-                  <img src={chattingWithUser.avatar} alt="avatar" />
-                  <div className="chat-about">
-                    <h6 className="mb-0" style={{ fontWeight: "bold" }}>
-                      {chattingWithUser.username}
-                    </h6>
-                    <div className="status">
-                      <small>
-                        <i
-                          className={
-                            chattingWithUser.onlineOrLastSeen === "online"
-                              ? "fa fa-circle online"
-                              : "fa fa-circle offline"
-                          }
-                        ></i>
-                        <span>
-                          {chattingWithUser.onlineOrLastSeen !== "online"
-                            ? " " +
-                              moment(chattingWithUser.onlineOrLastSeen)
-                                .local()
-                                .fromNow()
-                            : " online"}
-                        </span>
-                      </small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Messages
-              messages={messages}
-              chatFriend={chatFriends}
-              chattingWithUser={chattingWithUser}
-            />
-
-            <div className="chat-message clearfix">
-              <div className="input-group mb-0">
-                <div ref={emojiRef} className="input-group-prepend">
-                  <button
-                    className="btn shadow-none btn-send"
-                    type="button"
-                    onClick={() => setShowEmojis((oldState) => !oldState)}
-                  >
-                    <i className="bi bi-emoji-smile"></i>
-                  </button>
-                  {showEmojis && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        flexDirection: "column",
-                        justifyContent: "flex-end",
-                        bottom: "58px",
-                      }}
-                    >
-                      <Picker
-                        onEmojiClick={onEmojiClick}
-                        disableAutoFocus={true}
-                        groupVisibility={{
-                          animals_nature: false,
-                          objects: false,
-                          flags: false,
-                        }}
-                        native={true}
-                      />
-                    </div>
-                  )}
-                </div>
-                <div className="input-group-prepend">
-                  <button className="btn shadow-none btn-send" type="button">
-                    <i className="fa fa-paperclip"></i>
-                  </button>
-                </div>
-                <textarea
-                  ref={(msgBox) => setMessageBox(msgBox)}
-                  className="form-control shadow-none message-box txtarea"
-                  placeholder="Type your message..."
-                  value={message || ""}
-                  onChange={(e) => {
-                    setMessage(e.target.value);
-                  }}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                  style={{ fontSize: 16 }}
-                  rows={1}
-                />
-                <div
-                  className="input-group-prepend"
-                  style={{ marginRight: "8px" }}
-                >
-                  <button
-                    className="btn shadow-none btn-send float-right"
-                    type="button"
-                    onClick={handleSendMessage}
-                  >
-                    <i className="fa fa-send"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="right-pane">
-            <img
-              alt="logo"
-              src={logo}
-              style={{
-                height: "60px",
-                position: "absolute",
-                right: 0,
-                left: 0,
-                top: 0,
-                bottom: 0,
-                margin: "auto auto",
-              }}
-            />
-          </div>
-        )}
-      </>
+      <div className="right-pane">
+        <img
+          alt="logo"
+          src={logo}
+          style={{
+            height: "60px",
+            position: "absolute",
+            right: 0,
+            left: 0,
+            top: 0,
+            bottom: 0,
+            margin: "auto auto",
+          }}
+        />
+      </div>
     );
   }
 };

@@ -4,7 +4,7 @@ import "../styles/loader.css";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { validEmail, validPassword } from "../utils/validations";
-import { pageLoadVariants } from "../utils/animationVariants";
+import { errVariants, pageLoadVariants } from "../utils/animationVariants";
 import { useLocation, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../utils/PasswordStrengthMeter";
 
@@ -97,23 +97,6 @@ const ResetPassword = () => {
           setLoading(false);
         });
     }
-  };
-
-  const errVariants = {
-    hidden: {
-      visibility: "hidden",
-      opacity: 0,
-      x: -20,
-    },
-    visible: {
-      visibility: "visible",
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.5 },
-    },
-    exit: {
-      transition: { ease: "easeIn" },
-    },
   };
 
   /**

@@ -114,6 +114,28 @@ const declineFriendRequest = async (id) => {
   return UserRepository.declineFriendRequest(id);
 };
 
+const updateUser = async (
+  avatar,
+  username,
+  bio,
+  email_visibility,
+  twitter,
+  facebook,
+  instagram,
+  linkedin
+) => {
+  return UserRepository.updateUser(
+    avatar,
+    username,
+    bio,
+    email_visibility,
+    twitter,
+    facebook,
+    instagram,
+    linkedin
+  );
+};
+
 export {
   getUser,
   getUserFriends,
@@ -128,5 +150,6 @@ export {
   fetchFriendRequests,
   acceptFriendRequest,
   declineFriendRequest,
+  updateUser,
   logoutUser,
 };
