@@ -245,6 +245,19 @@ const Profile = ({ setShowPane, isFindingFriends }) => {
             ) : (
               <span className="name mt-3">{user.username}</span>
             )}
+
+            {!editMode && (
+              <div
+                className={`d-flex flex-row justify-content-center align-items-center`}
+                data-tip="Spire Score"
+              >
+                <span className="score">{user.score || 0}</span>
+                <span style={{ fontSize: "14px" }}>
+                  <i className="bi bi-activity" style={{ fontSize: 20 }}></i>
+                </span>
+              </div>
+            )}
+
             {(user.email_visibility || id === currentUser.uid) && (
               <span className="email">
                 <a href={`mailto:${user.email}`}>{user.email}</a>
@@ -264,16 +277,6 @@ const Profile = ({ setShowPane, isFindingFriends }) => {
                   />
                 )}
               </span>
-            )}
-            {!editMode && (
-              <div
-                className={`d-flex flex-row justify-content-center align-items-center ${
-                  !editMode && "mt-2"
-                }`}
-              >
-                <span className="score">{user.score || 0} </span>
-                <span style={{ fontSize: "14px" }}>Score</span>
-              </div>
             )}
             <div className="text text-center">
               {editMode ? (
