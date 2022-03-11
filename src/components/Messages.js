@@ -6,17 +6,12 @@ import Message from "./Message";
 
 const Messages = ({ messages, chattingWithUser }) => {
   const { currentUser } = useContext(AuthContext);
-  let previousDate = "";
+  let previous_timestamp = "";
 
   const displayDate = (timestamp) => {
     const previousValue = moment().diff(
-      moment(previousDate, "YYYY-MM-DD HH:mm:ss"),
+      moment(previous_timestamp, "YYYY-MM-DD HH:mm:ss"),
       "days"
-    );
-
-    const previousValueInHours = moment().diff(
-      moment(previousDate, "YYYY-MM-DD HH:mm:ss"),
-      "hours"
     );
 
     const currentValue = moment().diff(
@@ -24,21 +19,23 @@ const Messages = ({ messages, chattingWithUser }) => {
       "days"
     );
 
-    const currentValueInHours = moment().diff(
-      moment(timestamp, "YYYY-MM-DD HH:mm:ss"),
-      "hours"
-    );
-
-    if (
-      previousValueInHours !== currentValueInHours &&
-      previousValue !== currentValue
-    ) {
-      if (currentValueInHours < 12) return "Today";
-      else if (currentValueInHours >= 12 && currentValueInHours <= 36)
-        return "Yesterday";
-      else return moment(timestamp, "YYYY-MM-DD HH:mm:ss").format("MM/DD/YYYY");
-    }
+    if (currentValue !== previousValue) return calculateDateDiff(timestamp);
   };
+
+  function calculateDateDiff(date) {
+    let fromNow = moment(date, "YYYY-MM-DD HH:mm:ss").fromNow();
+
+    return moment(date).calendar(null, {
+      lastWeek: "[Last] dddd",
+      lastDay: "[Yesterday]",
+      sameDay: "[Today]",
+      nextDay: "[Tomorrow]",
+      nextWeek: "dddd",
+      sameElse: () => {
+        return "[" + fromNow + "]";
+      },
+    });
+  }
 
   const populateMessages = () => {
     return messages.map((message, i) => {
@@ -46,7 +43,7 @@ const Messages = ({ messages, chattingWithUser }) => {
         message.receiver_id === chattingWithUser.id ||
         message.sender_id === chattingWithUser.id
       ) {
-        previousDate = i > 0 && messages[i - 1].timestamp;
+        previous_timestamp = i > 0 && messages[i - 1].timestamp;
         return (
           <div key={message.id}>
             {displayDate(message.timestamp) !== undefined && (

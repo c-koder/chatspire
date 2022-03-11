@@ -5,7 +5,6 @@ const UserService = require("../services/UserService");
 
 const Settings = ({ setShowPane, setFindingFriends }) => {
   const [showSettings, setShowSettings] = useState(false);
-  const toggleOpen = () => setShowSettings(!showSettings);
 
   /**
    * Handling the logout using the firebase signout function.
@@ -32,9 +31,7 @@ const Settings = ({ setShowPane, setFindingFriends }) => {
   useEffect(() => {
     function handleClickOutside(event) {
       if (settingsRef.current && !settingsRef.current.contains(event.target)) {
-        setTimeout(() => {
-          setShowSettings(false);
-        }, 100);
+        setShowSettings(false);
       }
     }
 
@@ -53,24 +50,24 @@ const Settings = ({ setShowPane, setFindingFriends }) => {
         margin: "17px 0px 0px 0px",
       }}
     >
-      <div className="dropdown">
+      <div className="dropdown" ref={settingsRef}>
         <button
           className="btn shadow-none btn-send"
           type="button"
+          id="settings"
           data-bs-toggle="dropdown"
-          onClick={toggleOpen}
-          ref={settingsRef}
+          data-bs-auto-close="true"
+          aria-expanded="false"
+          onClick={() => setShowSettings(!showSettings)}
         >
           <i className="bi bi-gear-fill"></i>
         </button>
-        <div
-          className={`dropdown-menu ${showSettings ? "show" : ""}`}
+        <ul
+          className={`dropdown-menu ${showSettings && "show"}`}
+          aria-labelledby="settings"
           style={{
-            positionL: "absolute",
-            right: 0,
-            marginRight: 15,
             padding: 10,
-            boxShadow: "0 0px 50px 10px rgb(0 0 0 / 2%)",
+            boxShadow: "0 0px 50px 10px rgb(0 0 0 / 3%)",
             border: "none",
           }}
         >
@@ -104,7 +101,7 @@ const Settings = ({ setShowPane, setFindingFriends }) => {
           >
             <i className="bi bi-box-arrow-left"></i>Logout
           </button>
-        </div>
+        </ul>
       </div>
     </div>
   );

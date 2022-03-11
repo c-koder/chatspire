@@ -12,6 +12,7 @@ import LoginAndRegister from "../pages/LoginAndRegister";
 import { pageLoadVariants } from "../utils/animationVariants";
 import ResetPassword from "../pages/ResetPassword";
 import { onChildAdded, onChildChanged, query, ref } from "firebase/database";
+import ReactTooltip from "react-tooltip";
 
 const UserService = require("../services/UserService");
 const MessageService = require("../services/MessageService");
@@ -22,7 +23,7 @@ const Routing = () => {
   const [chatFriends, setChatFriends] = useState([]);
 
   const [pending, setPending] = useState(true);
-  const [loadingText, setLoadingText] = useState("loading, please wait...");
+  const [pendingText, setPendingText] = useState("loading, please wait...");
 
   /**
    * Observing user's sign in state.
@@ -30,7 +31,7 @@ const Routing = () => {
    */
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
-      setLoadingText("authorizing...");
+      setPendingText("authorizing...");
       setCurrentUser(user);
     });
   }, []);
@@ -57,7 +58,7 @@ const Routing = () => {
     UserService.getUserFriends()
       .then(async (response) => {
         if (response !== null) {
-          setLoadingText("getting users...");
+          setPendingText("getting users...");
           let friends = [];
           for (let index = 0; index < response.length; index++) {
             let friend = response[index];
@@ -77,7 +78,7 @@ const Routing = () => {
       });
   };
 
-  setTimeout(() => setPending(false), 2000);
+  setTimeout(() => setPending(false), 1000);
 
   if (pending) {
     return (
@@ -101,7 +102,7 @@ const Routing = () => {
         <h6
           style={{ textAlign: "center", letterSpacing: 3, marginTop: "20px" }}
         >
-          {loadingText}
+          {pendingText}
         </h6>
       </motion.div>
     );
@@ -109,6 +110,15 @@ const Routing = () => {
 
   return (
     <AuthContext.Provider value={{ currentUser }}>
+      <ReactTooltip
+        place="bottom"
+        type="dark"
+        effect="solid"
+        textColor="var(--lightAccent)"
+        backgroundColor="var(--dark)"
+        className="tool-tip"
+        offset={{ top: 15 }}
+      />
       <Routes>
         <Route
           exact
@@ -117,7 +127,6 @@ const Routing = () => {
             currentUser !== null && !pending ? (
               <Home chatFriends={chatFriends} setChatFriends={setChatFriends} />
             ) : (
-              // <SendFriendRequests />
               <LoginAndRegister />
             )
           }

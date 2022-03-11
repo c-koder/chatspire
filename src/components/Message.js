@@ -3,7 +3,7 @@ import Linkify from "react-linkify/dist/components/Linkify";
 import { useContext } from "react";
 import { AuthContext } from "../helpers/AuthContext";
 import { messageContainsEmojis } from "../utils/validations";
-import MessageSettings from "./MessageOptions";
+import MessageSettings from "./MessageSettings";
 
 const Message = ({ message, isUserMessage }) => {
   /**

@@ -14,6 +14,7 @@ const Home = ({ chatFriends, setChatFriends }) => {
   const [showPane, setShowPane] = useState("");
   const [isFindingFriends, setFindingFriends] = useState({
     id: auth.currentUser.uid,
+    is_friend: false,
     viewing_friend: false,
     friend_request: false,
   });

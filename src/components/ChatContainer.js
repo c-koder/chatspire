@@ -49,25 +49,13 @@ const ChatContainer = ({
 
   useEffect(() => {
     onChildAdded(query(ref(db, "messages/")), (snapshot) => {
-      MessageService.getUserMessages()
-        .then((response) => {
-          if (response !== null) {
-            setMessages(response);
-          }
-        })
-        .catch((err) => {});
+      populateMessages();
     });
   }, []);
 
   useEffect(() => {
     onChildChanged(query(ref(db, "messages/")), (snapshot) => {
-      MessageService.getUserMessages()
-        .then((response) => {
-          if (response !== null) {
-            setMessages(response);
-          }
-        })
-        .catch((err) => {});
+      populateMessages();
     });
   }, []);
 
@@ -86,6 +74,16 @@ const ChatContainer = ({
       })
       .catch((err) => {});
   }, [chattingWithUser]);
+
+  const populateMessages = () => {
+    MessageService.getUserMessages()
+      .then((response) => {
+        if (response !== null) {
+          setMessages(response);
+        }
+      })
+      .catch((err) => {});
+  };
 
   const handleSendMessage = () => {
     if (message !== "") {
@@ -111,7 +109,18 @@ const ChatContainer = ({
   if (showPane === "messages") {
     return (
       <div>
-        <div className="chat-header clearfix">
+        <div
+          className="chat-header clearfix"
+          onClick={(e) => {
+            setShowPane("profile");
+            setFindingFriends({
+              id: chattingWithUser.id,
+              is_friend: true,
+              viewing_friend: false,
+              friend_request: false,
+            });
+          }}
+        >
           <div className="row">
             <div className="col-lg-6">
               <img src={chattingWithUser.avatar} alt="avatar" />

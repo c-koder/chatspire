@@ -4,7 +4,6 @@ const MessageService = require("../services/MessageService");
 
 const MessageSettings = ({ msg_id, isSender }) => {
   const [showSettings, setShowSettings] = useState(false);
-  const toggleOpen = () => setShowSettings(!showSettings);
 
   useEffect(() => {
     const close = (e) => {
@@ -37,7 +36,6 @@ const MessageSettings = ({ msg_id, isSender }) => {
 
   return (
     <div
-      ref={settingsRef}
       style={{
         position: "absolute",
         marginTop: -7,
@@ -46,27 +44,27 @@ const MessageSettings = ({ msg_id, isSender }) => {
         right: 0,
       }}
     >
-      <div className="dropdown">
+      <div className="dropdown" ref={settingsRef}>
         <button
           className="btn shadow-none"
           type="button"
+          id="message-settings"
           data-bs-toggle="dropdown"
-          onClick={toggleOpen}
+          data-bs-auto-close="false"
+          aria-expanded="false"
+          onClick={() => setShowSettings(!showSettings)}
         >
           <i
             className={`bi bi-chevron-down opt ${showSettings && " fixed"}`}
           ></i>
         </button>
-        <div
-          className={`dropdown-menu ${showSettings ? "show" : ""}`}
+        <ul
+          className={`dropdown-menu ${showSettings && "show"}`}
+          aria-labelledby="message-settings"
           style={{
-            position: "absolute",
-            right: 0,
-            marginRight: 5,
             padding: 10,
             boxShadow: "0 0px 50px 10px rgb(0 0 0 / 3%)",
             border: "none",
-            zIndex: 99,
           }}
         >
           <button className="dropdown-item settings-item">
@@ -83,7 +81,7 @@ const MessageSettings = ({ msg_id, isSender }) => {
               <i className="bi bi-trash3-fill"></i>Delete
             </button>
           )}
-        </div>
+        </ul>
       </div>
     </div>
   );

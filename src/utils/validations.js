@@ -47,7 +47,7 @@ export const validTwitterUrl = (url) => {
 
 export const validFacebookUrl = (url) => {
   const format =
-    /^(http(s)?:\/\/)?([\w]+\.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?/;
+    /^(http(s)?:\/\/)?([\w]+\.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w-]*)?/;
   return url.match(format);
 };
 
@@ -59,6 +59,6 @@ export const validInstagramUrl = (url) => {
 
 export const validLinkedinUrl = (url) => {
   const format =
-    /^(http(s)?:\/\/)?([\w]+\.)?linkedin\.com\/(pub|in|profile)(\w+:{0,1}\w*@)?(\S+)(:([0-9])+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    /^(http(s)?:\/\/)?([\w]+\.)?linkedin\.com\/(pub|in|profile)(\w+:{0,1}\w*@)?(\S+)(:([0-9])+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
   return url.match(format);
 };
